@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMG pool at deleterium.info</title>
+    <script src="https://cdn.jsdelivr.net/npm/@signumjs/util/dist/signumjs.util.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
+    <script src='./index.js'></script>
+    <style type="text/css" media="all">
+    * {
+       box-sizing: border-box;
+    }
+    body {
+        margin: 0;
+        background-color: rgb(17, 78, 100);
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        color: rgb(255, 255, 255);
+    }
+    header {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 2ch;
+        padding: 2ch;
+        margin: 0;
+    }
+    .light {
+        color: rgb(17, 78, 100);
+        background-color: rgb(255, 255, 255);
+    }
+
+    main, .info {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        
+    }
+    h2 {
+        padding: 0;
+        margin: 0;
+    }
+    h3 {
+        padding: 0;
+        margin: 0 0 1ch 0;
+        text-align: center;
+        color: rgb(17, 78, 100);
+        width: 100%;
+    }
+    .box {
+        width: 50ch;
+        background-color: rgb(233, 233, 233);
+        margin: 1ch;
+        padding: 1ch;
+        border-radius: 2ch;
+        border: 2px solid  rgb(17, 78, 100);
+    }
+    .hundred {
+        width: 100%;
+    }
+    .status {
+        margin: 0;
+        padding: 1ch;
+    }
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <div><h2>TMG Pool @ deleterium.info (TESTNET)</h2></div>
+        <div>
+            <div name="linked" style="display: none;"><button id="btn_unlink">Unlink</button></div>
+            <div name="unlinked"><button id="btn_link">Connect to XT wallet</button></div>
+        </div>
+    </header>
+
+    <div class="info light">
+        <div class="box" name="linked" style="display: none;">
+            <h3><output id="user_rs"></output></h3>
+            <table>
+                <tr><td>Name:</td><td><output id="user_name"></output></td></tr>
+                <tr><td>Signa:</td><td><output id="user_signa"></output> (+<output id="user_signa_locked"></output> locked)</td></tr>
+                <tr><td>TMG:</td><td><output id="user_tmg"></output> (+<output id="user_tmg_locked"></output> locked)</td></tr>
+                <tr><td>lcTMG:&nbsp;</td><td><output id="user_lctmg"></output> (+<output id="user_lctmg_locked"></output> locked)</td></tr>
+            </table>
+        </div>
+        <div class="box">
+            <h3>Pool info :: 1 TMG &lt;=&gt; <output id="contract_price"></output> Signa<br></h3>
+            <table>
+                <tr><td>Pool address:&nbsp;</td><td><output id="contract_rs"></output></td></tr>
+                <tr><td>Pool size:</td><td><output id="contract_signa"></output> Signa x <output id="contract_tmg"></output> TMG</td></tr>
+                <tr><td>Liquidity:</td><td><output id="contract_liquidity"></output> lcTMG</td></tr>
+                <tr><td>Pool owner:</td><td><output id="contract_owner"></output></td></tr>
+            </table>
+        </div>
+    </div>
+    <main class="light">
+        <div class="box">
+            <h3>Buy TMG</h3>
+            <table>
+                <tr><td>TMG to receive:</td><td><input type="number" style="width: 25ch;" id="ipt_buy_tmg"></td></tr>
+                <tr><td>Signa to send:</td><td><input type="number" style="width: 25ch;" id="ipt_buy_signa"></td></tr>
+                <tr><td>Effective price:</td><td><output id="buy_effective_price"></output> Signa</td></tr>
+                <tr><td>Price impact:</td><td><output id="buy_price_impact"></output>%</td></tr>
+                <tr><td>Operational costs:&nbsp;</td><td><output id="buy_op_cost"></output> Signa</td></tr>
+            </table>
+            <button id="btn_buy" class="hundred">Buy</button>
+        </div>
+        <div class="box">
+            <h3>Sell TMG</h3>
+            <table>
+                <tr><td>TMG to send:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_tmg"></td></tr>
+                <tr><td>Signa to receive:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_signa"></td></tr>
+                <tr><td>Effective price:</td><td><output id="sell_effective_price"></output> Signa</td></tr>
+                <tr><td>Price impact:</td><td><output id="sell_price_impact"></output>%</td></tr>
+                <tr><td>Operational costs:&nbsp;</td><td><output id="sell_op_cost_signa"></output> Signa and <output id="sell_op_cost_tmg"></output> TMG</td></tr>
+            </table>
+            <button id="btn_sell" class="hundred">Sell</button><br>
+        </div>
+        <div class="box">
+            <h3>Add liquidity</h3>
+            <table>
+                <tr><td>TMG to add:</td><td> <input type="number" style="width: 25ch;" id="ipt_add_tmg"></td></tr>
+                <tr><td>Signa to add:</td><td><input type="number" style="width: 25ch;" id="ipt_add_signa"></td></tr>
+                <tr><td>Operational costs:&nbsp;</td><td><output id="add_op_cost"></output> Signa</td></tr>
+                <tr><td>To be refunded:</td><td><output id="add_refunded_signa"></output> Signa and <output id="add_refunded_tmg"></output> TMG</td></tr>
+                <tr><td>Added liquidity:</td><td><output id="add_lctmg"></output> lcTMG</td></tr>
+            </table>
+            <button id="btn_add" class="hundred">Add</button><br>
+        </div>
+        <div class="box">
+            <h3>Remove liquidity</h3>
+            <table>
+                <tr><td>lcTMG to remove:</td><td><input type="number" style="width: 25ch;" id="ipt_remove_lctmg"></td></tr>
+                <tr><td>Operational costs:&nbsp;</td><td><output id="remove_op_cost"></output> Signa</td></tr>
+                <tr><td>Signa to receive:</td><td><output id="remove_signa"></output></td></tr>
+                <tr><td>TMG to receive:</td><td><output id="remove_tmg"></output></td></tr>
+            </table>
+            <button id="btn_remove" class="hundred">Remove</button><br>
+        </div>
+    </main>
+    <div class="status light">
+        <h3>Transaction status</h3>
+        <div style="border: 1px solid black; padding: 1ch;" id="transaction_status"></div>
+    </div>
+    <div class="status">
+        <h2>Help</h2>
+        <ul>
+            <li><strong>Effective price:</strong> Price per asset including all operational costs</li>
+            <li><strong>Price impact:</strong> Variation on asset price caused by the order</li>
+            <li><strong>Operational costs:</strong> Sum of transaction fee, smart contract fee and pool fee</li>
+            <li><strong>Transaction fee:</strong> Fee for sending one transaction: 0.02 Signa</li>
+            <li><strong>Smart contract fee:</strong> Fee needed for contract activation and calculations: 0.42 Signa</li>
+            <li><strong>Pool fee:</strong> 2% for trades, charged in Signa for buy and or TMG for sale. No fees for liquidity addition or removal.</li>
+        </ul>
+        <h2>Contract details</h2>
+        <ul>
+            <li>Total pool fee is 2%, 1.9% for liquidity providers and 0.1% for owner.</li>
+            <li>Fees distributed at least 24 hours after last distribution, if the amount is greater than 0.42 Signa.</li>
+            <li>Fees collected in assets are traded inside the pool before distribution, this mean, only Signa is distributed.</li>
+            <li>Contract based on https://github.com/deleterium/SmartC/blob/main/samples/liquidityPool.md</li>
+        </ul>
+    </div>
+    <footer>
+
+    </footer>
+
+</body>
+</html>
