@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/util/dist/signumjs.util.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
-    <script src='./index.js'></script>
+    <script src='./index1508.js'></script>
     <style type="text/css" media="all">
     * {
        box-sizing: border-box;
@@ -38,6 +38,11 @@
         flex-wrap: wrap;
         justify-content: space-around;
         
+    }
+    a:visited, a:hover, a:active, a:focus {
+        color: inherit;
+        text-decoration: underline;
+        outline: none !important;
     }
     h2 {
         padding: 0;
@@ -95,6 +100,7 @@
                 <tr><td>Signa:</td><td><output id="user_signa"></output> (+<output id="user_signa_locked"></output> locked)</td></tr>
                 <tr><td>TMG:</td><td><output id="user_tmg"></output> (+<output id="user_tmg_locked"></output> locked)</td></tr>
                 <tr><td>lcTMG:&nbsp;</td><td><output id="user_lctmg"></output> (+<output id="user_lctmg_locked"></output> locked)</td></tr>
+                <tr><td>Liquidity:&nbsp;</td><td><output id="user_liquidity_signa"></output> Signa and <output id="user_liquidity_tmg"></output> TMG</td></tr>
             </table>
         </div>
         <div class="box">

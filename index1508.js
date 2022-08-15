@@ -494,6 +494,7 @@ function showError(message) {
     document.getElementById('transaction_status').innerHTML = message.replace(/\n/g, "<br />");
     alert('Oh no... An error has occurred.')
 }
+
 function supressError(message) {
     console.log("SUPRESSED: " + message)
 }
@@ -547,6 +548,7 @@ function enableLinkedInfo() {
         dom.style.display = 'none'
     })
 }
+
 function disableLinkedInfo() {
     const spans = document.getElementsByName("linked");
     spans.forEach( dom => {
@@ -608,6 +610,9 @@ async function updateLinkedAccount() {
     document.getElementById('user_signa_locked').innerText = Global.extendedInfo.signaLocked
     document.getElementById('user_tmg_locked').innerText = Global.extendedInfo.tmgLocked
     document.getElementById('user_lctmg_locked').innerText = Global.extendedInfo.lctmgLocked
+
+    document.getElementById('user_liquidity_signa').innerText = ((Number(Stats.signaTotal) * Global.extendedInfo.lctmg / Number(Stats.currentLiquidity)) / 1E8).toFixed(4)
+    document.getElementById('user_liquidity_tmg').innerText = Number((Stats.assetTotal * BigInt(Global.extendedInfo.lctmg.toFixed(0))) / Stats.currentLiquidity) / 100
 }
 
 async function getExtendedAccountInfo() {
@@ -654,7 +659,7 @@ async function getExtendedAccountInfo() {
 }
 
 function updateContractDetails() {
-    document.getElementById("contract_rs").innerText = idTOaccount(Config.smartContractId)
+    document.getElementById("contract_rs").innerHTML = `<a href="https://t-chain.signum.network/address/${Config.smartContractId}" target="_blank">${idTOaccount(Config.smartContractId)}</a>`
     document.getElementById("contract_owner").innerText = Stats.owner
     document.getElementById("contract_price").innerText = Stats.aPrice.toFixed(2)
     document.getElementById("contract_signa").innerText = (Number(Stats.signaTotal)/1E8).toFixed(2)
@@ -686,6 +691,8 @@ async function requestContractData() {
         }
         return retObj;
     }
+
+    setTimeout(requestContractData, 120000)
 
     let response
     try {
