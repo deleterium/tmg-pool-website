@@ -736,7 +736,7 @@ function idTOaccount(id) {
     let alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ".split("")
     let base32alpha="0123456789abcdefghijklmnopqrstuv"
     let base32Length = 13
-    let account = "TS-"
+    let account = "S-"
     let i;
     
     function gmult(a, b) {
