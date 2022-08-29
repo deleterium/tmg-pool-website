@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="100.5mm"
+   height="100.5mm"
+   viewBox="0 0 100.5 100.5"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="SmartC-Logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <title
+     id="title9837">SmartC Logo</title>
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     inkscape:snap-to-guides="false"
+     inkscape:snap-grids="false"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="245.0125"
+     inkscape:cy="182.25677"
+     inkscape:window-width="2560"
+     inkscape:window-height="1354"
+     inkscape:window-x="0"
+     inkscape:window-y="56"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     showguides="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid1810" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Camada 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <circle
+       style="fill:#021851;fill-opacity:1;stroke:none;stroke-width:4;stroke-linejoin:round"
+       id="path3430"
+       cx="50.302059"
+       cy="50.288258"
+       r="50.270832" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 64.822916,19.314583 52.122917,2.6458331 l -3.704168,3e-7 L 35.71875,19.314583 v 0.264583 l 1.322916,1.322917 h 4.7625 L 50.270833,9.7895834 58.7375,20.902083 H 63.5 l 1.322916,-1.322917 z"
+       id="path5917"
+       sodipodi:nodetypes="cccccccccccc" />
+    <path
+       style="fill:#ffffff;fill-opacity:0.99635;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 64.822916,81.22708 52.122917,97.89583 H 48.418749 L 35.71875,81.22708 l 0,-0.264583 1.322916,-1.322917 h 4.7625 l 8.466667,11.1125 8.466667,-11.1125 H 63.5 l 1.322916,1.322917 z"
+       id="path6005"
+       sodipodi:nodetypes="cccccccccccc" />
+    <path
+       style="fill:#fffffe;fill-opacity:0.99817502;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 81.227083,64.822917 16.66875,-12.699999 0,-3.704168 -16.66875,-12.699999 H 80.9625 l -1.322917,1.322916 v 4.7625 l 11.1125,8.466667 -11.1125,8.466667 v 4.7625 l 1.322917,1.322916 z"
+       id="path6011"
+       sodipodi:nodetypes="cccccccccccc" />
+    <path
+       style="fill:#ffffff;fill-opacity:0.99635;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 19.314583,64.822916 -16.66875,-12.699999 3e-7,-3.704168 L 19.314583,35.71875 h 0.264583 l 1.322917,1.322916 v 4.7625 L 9.7895833,50.270833 20.902083,58.7375 V 63.5 l -1.322917,1.322916 z"
+       id="path6017"
+       sodipodi:nodetypes="cccccccccccc" />
+    <path
+       style="opacity:1;fill:#ffffff;fill-opacity:0.99635;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 45.23783,42.597917 1.058333,-0.793751 V 30.427083 c 0,-1.322916 -1.5875,-2.910416 -2.910416,-2.910416 H 30.15658 c -1.322917,0 -2.910417,1.5875 -2.910417,2.910416 v 11.644482 c -8.31e-4,0.49663 0.133187,0.697675 0.389787,1.000211 l 12.75059,15.500717 c 0.172944,0.269673 0.360555,0.568173 0.353373,0.962629 v 8.196823 c -0.0017,0.141393 -0.11262,0.265972 -0.255679,0.265972 h -7.415451 c -0.147456,-5.04e-4 -0.262236,-0.101269 -0.26637,-0.264584 v -9.525 l -1.041797,-0.760677 -3.472656,-0.03307 -1.041797,0.79375 V 70.64375 c 0,1.322917 1.5875,2.910417 2.910417,2.910417 h 13.229167 c 1.322916,0 2.910416,-1.5875 2.910416,-2.910417 V 58.243041 c 0.01418,-0.640557 -0.206549,-1.076384 -0.526117,-1.478367 L 33.145637,41.169816 C 32.908909,40.900084 32.80575,40.625228 32.802413,40.235757 v -6.893048 c 0.0058,-0.147455 0.147252,-0.269792 0.268433,-0.269792 h 7.404618 c 0.161563,2.46e-4 0.268343,0.124478 0.264449,0.269792 v 8.461458 l 1.058334,0.79375 z"
+       id="path6054"
+       sodipodi:nodetypes="ccssssccccccccccccssssccccccccccc" />
+    <path
+       style="opacity:1;fill:#ffffff;fill-opacity:0.998175;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 72.231251,42.597917 1.058333,-0.79375 v -11.343083 -0.034 c 0,-1.322916 -1.5875,-2.910416 -2.910417,-2.910416 H 57.150002 c -1.322918,0 -2.910355,1.5875 -2.910418,2.910416 l -0.0019,39.962827 c -6.3e-5,1.322917 1.589416,3.181257 2.912332,3.179711 l 13.229151,-0.01545 c 1.340447,-0.0016 2.903932,-1.844707 2.90457,-3.173511 l 0.0058,-12.160635 -1.06269,-0.8098 h -3.454256 l -1.050997,0.817137 0.01138,9.510427 c -6.3e-5,0.153914 -0.108474,0.251224 -0.281661,0.260126 h -7.395849 c -0.137612,0.0083 -0.259679,-0.110401 -0.259679,-0.260125 l 10e-7,-34.402358 c 9.66e-4,-0.135908 0.137227,-0.262228 0.263598,-0.262516 h 7.405233 c 0.139554,0.0051 0.267854,0.128887 0.268669,0.264583 l -1e-6,8.466666 1.058333,0.793751 z"
+       id="path11585"
+       sodipodi:nodetypes="cccssssssssccccccccccccccc" />
+  </g>
+  <metadata
+     id="metadata9835">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>SmartC Logo</dc:title>
+        <cc:license
+           rdf:resource="http://artlibre.org/licence/lal" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://artlibre.org/licence/lal">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

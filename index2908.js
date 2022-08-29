@@ -19,7 +19,9 @@ window.onload = async function () {
     document.getElementById("btn_remove").addEventListener('click', evtRemove)
 
     await requestContractData()
-    activateWalletXT(supressError)
+    if (localStorage.getItem("hasXT") === "true") {
+        activateWalletXT(supressError)
+    }
 }
 
 const Config = {
@@ -529,6 +531,7 @@ async function activateWalletXT(errorCallback) {
                 onPermissionRemoved: unlinkAccount,
                 onAccountRemoved: unlinkAccount
             })
+            localStorage.setItem("hasXT", "true");
             updateLinkedAccount();
         } catch (err) {
             unlinkAccount()
@@ -572,6 +575,7 @@ function unlinkAccount() {
     Global.wallet = undefined
     Global.walletResponse = undefined
     Global.extendedInfo = undefined
+    localStorage.removeItem("hasXT");
     updateLinkedAccount()
 }
 
