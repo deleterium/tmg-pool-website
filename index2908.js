@@ -18,20 +18,20 @@ window.onload = async function () {
     document.getElementById("ipt_remove_lctmg").addEventListener('keyup', evtCalculateRemove)
     document.getElementById("btn_remove").addEventListener('click', evtRemove)
 
-    requestContractData()
+    await requestContractData()
     activateWalletXT(supressError)
 }
 
 const Config = {
-    smartContractId: "5922534125314144333",
-    assetId: "15297368334901195317",
-    lcId: "2633630915943258413",
-    appName: "TMG pool 2 TESTNET",
-    networkName: "Signum-TESTNET"
+    smartContractId: "7071860869716171474",
+    assetId: "11955007191311588286",
+    lcId: "148856166788128147",
+    appName: "TMG Signa Pool",
+    networkName: "Signum"
 }
 
 const Global = {
-    server: 'https://europe3.testnet.signum.network',
+    server: 'https://europe.signum.network',
     wallet: undefined,
     walletResponse: undefined,
     signumJSAPI: undefined,
@@ -611,8 +611,9 @@ async function updateLinkedAccount() {
     document.getElementById('user_tmg_locked').innerText = Global.extendedInfo.tmgLocked
     document.getElementById('user_lctmg_locked').innerText = Global.extendedInfo.lctmgLocked
 
-    document.getElementById('user_liquidity_signa').innerText = ((Number(Stats.signaTotal) * Global.extendedInfo.lctmg / Number(Stats.currentLiquidity)) / 1E8).toFixed(4)
-    document.getElementById('user_liquidity_tmg').innerText = Number((Stats.assetTotal * BigInt(Global.extendedInfo.lctmg.toFixed(0))) / Stats.currentLiquidity) / 100
+    const Params = calculateRemove(Global.extendedInfo.lctmg)
+    document.getElementById('user_liquidity_signa').innerText = Params.removedSigna.toFixed(4)
+    document.getElementById('user_liquidity_tmg').innerText = Params.removedAsset
 }
 
 async function getExtendedAccountInfo() {
