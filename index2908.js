@@ -29,7 +29,8 @@ const Config = {
     assetId: "11955007191311588286",
     lcId: "148856166788128147",
     appName: "TMG Signa Pool",
-    networkName: "Signum"
+    networkName: "Signum",
+    slippageMessage: "ATTENTION: Shown only once\n\nCalculations are only valid if your transaction is the only one between the the time the page loads and the transaction be processed by the smart contract. Actual received values may differ."
 }
 
 const Global = {
@@ -37,7 +38,8 @@ const Global = {
     wallet: undefined,
     walletResponse: undefined,
     signumJSAPI: undefined,
-    extendedInfo: undefined
+    extendedInfo: undefined,
+    messageIsError: false
 }
 
 const Stats = {
@@ -53,6 +55,16 @@ const Stats = {
 function calculateBuyFromSigna(Signa) {
 
     let bSigna = BigInt((Signa * 1E8).toFixed(0))
+    if (bSigna <= 0) {
+        return {
+            poolFeeSigna: 0,
+            contractActivation: 0,
+            transactionFee: 0,
+            impact: 0,
+            effectivePrice: 0,
+            effectiveAsset: 0
+        }
+    }
     let effSigna = (bSigna * 980n) / 1000n
     let effAsset = (effSigna * Stats.assetTotal) / (Stats.signaTotal + effSigna)
 
@@ -78,6 +90,16 @@ function calculateBuyFromSigna(Signa) {
 function calculateBuyFromTmg(Tmg) {
 
     let bTmg = BigInt((Tmg * 100).toFixed(0))
+    if (bTmg >= Stats.assetTotal || bTmg <= 0n) {
+        return {
+            poolFeeSigna: 0,
+            contractActivation: 0,
+            transactionFee: 0,
+            impact: 0,
+            effectivePrice: 0,
+            neededSigna: 0
+        }
+    }
     let effSigna = 1n + (bTmg * Stats.signaTotal) / (Stats.assetTotal - bTmg)
     const bSigna = 1n + (effSigna * 1000n) / 980n
 
@@ -106,7 +128,13 @@ function calculateAdd(Signa, Asset) {
     let bSigna = BigInt((Signa * 1E8).toFixed(0))
 
     if (bAsset <= 0n || bSigna <= 0n) {
-        return
+        return {
+            addedLiquidity: 0,
+            refundedSigna: 0,
+            refundedAsset: 0,
+            contractActivation: 0,
+            transactionFee: 0
+        }
     }
     let excessSigna = bSigna - ((bAsset * Stats.signaTotal) / Stats.assetTotal);
     let excessAsset = bAsset - ((bSigna * Stats.assetTotal) / Stats.signaTotal);
@@ -142,7 +170,12 @@ function calculateRemove(Asset) {
     let bAsset = BigInt((Asset).toFixed(0))
 
     if (bAsset <= 0n) {
-        return
+        return {
+            removedSigna: 0,
+            removedAsset: 0,
+            contractActivation: 0,
+            transactionFee: 0
+        }
     }
 
     let calculatedSigna = (Stats.signaTotal * bAsset) / Stats.currentLiquidity
@@ -164,6 +197,16 @@ function calculateRemove(Asset) {
 function calculateSellFromTMG(Asset) {
 
     let bAsset = BigInt((Asset * 100).toFixed(0))
+    if (bAsset <= 0) {
+        return {
+            poolFeeTmg: 0,
+            contractActivation: 0,
+            transactionFee: 0,
+            impact: 0,
+            effectivePrice: 0,
+            effectiveSigna: 0
+        }
+    }
     let effAsset = (bAsset * 980n) / 1000n
     let effSigna = (effAsset * Stats.signaTotal) / (Stats.assetTotal + effAsset)
 
@@ -189,6 +232,16 @@ function calculateSellFromTMG(Asset) {
 function calculateSellFromSigna(Signa) {
 
     let bSigna = BigInt((Signa * 1E8).toFixed(0))
+    if (bSigna >= Stats.signaTotal) {
+        return {
+            poolFeeSigna: 0,
+            contractActivation: 0,
+            transactionFee: 0,
+            impact: 0,
+            effectivePrice: 0,
+            neededAsset: 0
+        }
+    }
 
     const effectiveAsset = 1n + (Stats.assetTotal * bSigna) / (Stats.signaTotal - bSigna)
 
@@ -219,7 +272,7 @@ function evtCalculateAddSigna(e) {
     if (isNaN(numberSigna)) {
         numberSigna = Number(userInputSigna.replace(',','.'))
     }
-    if (isNaN(numberSigna) || numberSigna <= 0 || Stats.aPrice === 0) {
+    if (isNaN(numberSigna) || Stats.aPrice === 0) {
         return
     }
 
@@ -239,7 +292,7 @@ function evtCalculateAddTmg(e) {
     if (isNaN(numberTmg)) {
         numberTmg = Number(userInputTmg.replace(',','.'))
     }
-    if (isNaN(numberTmg) || numberTmg <= 0 || Stats.aPrice === 0) {
+    if (isNaN(numberTmg) || Stats.aPrice === 0) {
         return
     }
 
@@ -259,7 +312,7 @@ function evtCalculateRemove() {
     if (isNaN(numberLctmg)) {
         numberLctmg = Number(userInputLctmg.replace(',','.'))
     }
-    if (isNaN(numberLctmg) || numberLctmg <= 0 || Stats.aPrice === 0) {
+    if (isNaN(numberLctmg) || Stats.aPrice === 0) {
         return
     }
     const Params = calculateRemove(numberLctmg)
@@ -275,7 +328,7 @@ function evtBuySigna(e) {
     if (isNaN(numberBalance)) {
         numberBalance = Number(userInput.replace(',','.'))
     }
-    if (isNaN(numberBalance) || numberBalance <= 0 || Stats.aPrice === 0) {
+    if (isNaN(numberBalance) || Stats.aPrice === 0) {
         return
     }
     const Params = calculateBuyFromSigna(numberBalance)
@@ -292,7 +345,7 @@ function evtBuyTmg(e) {
     if (isNaN(numberBalance)) {
         numberBalance = Number(userInput.replace(',','.'))
     }
-    if (isNaN(numberBalance) || numberBalance <= 0 || Stats.aPrice === 0) {
+    if (isNaN(numberBalance) || Stats.aPrice === 0) {
         return
     }
     const Params = calculateBuyFromTmg(numberBalance)
@@ -309,7 +362,7 @@ function evtSellTmg(e) {
     if (isNaN(numberBalance)) {
         numberBalance = Number(userInput.replace(',','.'))
     }
-    if (isNaN(numberBalance) || numberBalance <= 0 || Stats.aPrice === 0) {
+    if (isNaN(numberBalance) || Stats.aPrice === 0) {
         return
     }
     const Params = calculateSellFromTMG(numberBalance)
@@ -327,7 +380,7 @@ function evtSellSigna(e) {
     if (isNaN(numberBalance)) {
         numberBalance = Number(userInput.replace(',','.'))
     }
-    if (isNaN(numberBalance) || numberBalance <= 0 || Stats.aPrice === 0) {
+    if (isNaN(numberBalance) || Stats.aPrice === 0) {
         return
     }
     const Params = calculateSellFromSigna(numberBalance)
@@ -340,6 +393,7 @@ function evtSellSigna(e) {
 }
 
 async function evtBuy() {
+    clearError()
     const userInput = document.getElementById('ipt_buy_signa').value
     let numberBalance = Number(userInput)
     if (isNaN(numberBalance)) {
@@ -376,6 +430,7 @@ async function evtBuy() {
 }
 
 async function evtSell() {
+    clearError()
     const userInput = document.getElementById('ipt_sell_tmg').value
     let numberBalance = Number(userInput)
     if (isNaN(numberBalance)) {
@@ -411,6 +466,7 @@ async function evtSell() {
 }
 
 async function evtAdd() {
+    clearError()
     const userInputTmg = document.getElementById('ipt_add_tmg').value
     let numberTmg = Number(userInputTmg)
     if (isNaN(numberTmg)) {
@@ -457,6 +513,7 @@ async function evtAdd() {
 }
 
 async function evtRemove() {
+    clearError()
     const userInput = document.getElementById('ipt_remove_lctmg').value
     let numberLctmg = Number(userInput)
     if (isNaN(numberLctmg)) {
@@ -493,8 +550,15 @@ async function evtRemove() {
 }
 
 function showError(message) {
+    Global.messageIsError = true
     document.getElementById('transaction_status').innerHTML = message.replace(/\n/g, "<br />");
     alert('Oh no... An error has occurred.')
+}
+
+function clearError() {
+    if (Global.messageIsError) {
+        document.getElementById('transaction_status').innerHTML = '';
+    }
 }
 
 function supressError(message) {
@@ -502,12 +566,20 @@ function supressError(message) {
 }
 
 function showSuccess(message) {
+    Global.messageIsError = false
     document.getElementById('transaction_status').innerHTML = message.replace(/\n/g, "<br />");
     alert('Success!!! Wait 8 minutes and check your account.')
 }
 
 async function activateWalletXT(errorCallback) {
     if (Global.wallet === undefined) {
+        clearError()
+        if (localStorage.getItem("acceptedSlippage") !== "true") {
+            if (!window.confirm(Config.slippageMessage)) {
+                return
+            }
+            localStorage.setItem("acceptedSlippage","true");
+        }
         Global.wallet = new sig$wallets.GenericExtensionWallet();
         try {
             Global.walletResponse = await Global.wallet.connect({
@@ -571,6 +643,7 @@ function updateDefaultNode(selectedNode) {
 }
 
 function unlinkAccount() {
+    clearError()
     Global.walletSubscription?.unlisten()
     Global.wallet = undefined
     Global.walletResponse = undefined
@@ -664,7 +737,7 @@ async function getExtendedAccountInfo() {
 }
 
 function updateContractDetails() {
-    document.getElementById("contract_rs").innerHTML = `<a href="https://t-chain.signum.network/address/${Config.smartContractId}" target="_blank">${idTOaccount(Config.smartContractId)}</a>`
+    document.getElementById("contract_rs").innerHTML = `<a href="https://explorer.notallmine.net/address/${Config.smartContractId}" target="_blank">${idTOaccount(Config.smartContractId)}</a>`
     document.getElementById("contract_owner").innerText = Stats.owner
     document.getElementById("contract_price").innerText = Stats.aPrice.toFixed(2)
     document.getElementById("contract_signa").innerText = (Number(Stats.signaTotal)/1E8).toFixed(2)
@@ -697,7 +770,7 @@ async function requestContractData() {
         return retObj;
     }
 
-    setTimeout(requestContractData, 120000)
+    setTimeout(requestContractData, 60000)
 
     let response
     try {
