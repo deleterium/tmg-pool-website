@@ -128,10 +128,10 @@
             <h3>Sell TMG</h3>
             <table>
                 <tr><td>TMG to send:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_tmg"></td></tr>
-                <tr><td>Signa to receive:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_signa"></td></tr>
                 <tr><td>Effective price:</td><td><output id="sell_effective_price"></output> Signa</td></tr>
                 <tr><td>Price impact:</td><td><output id="sell_price_impact"></output>%</td></tr>
                 <tr><td>Operational costs:&nbsp;</td><td><output id="sell_op_cost_signa"></output> Signa and <output id="sell_op_cost_tmg"></output> TMG</td></tr>
+                <tr><td>Signa to receive:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_signa"></td></tr>
             </table>
             <button id="btn_sell" class="hundred">Sell</button><br>
         </div>
@@ -173,10 +173,11 @@
         </ul>
         <h2>Contract details</h2>
         <ul>
-            <li>Total pool fee is 2%, 1.9% for liquidity providers and 0.1% for owner.</li>
+            <li>Fee for incoming transactions in Signa is 2%, 1.9% for liquidity providers and 0.1% for owner.</li>
             <li>Fees distributed at least 24 hours after last distribution, if the amount is greater than 0.42 Signa.</li>
-            <li>Fees collected in TMG will be distributed as TMG to liquidity providers.</li>
-            <li>Contract source code on https://github.com/deleterium/SmartC/blob/main/samples/liquidityPool.md</li>
+            <li>Fees collected in TMG will be distributed as TMG to liquidity providers without fees.</li>
+            <li>Daily TMG distributions will be redistributed to liquidity providers, but discounted 5% for pool owner.</li>
+            <li>More info and contract source code on https://github.com/deleterium/SmartC/blob/main/samples/liquidityPool.md</li>
         </ul>
     </div>
     <footer>
