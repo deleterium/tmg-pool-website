@@ -7,7 +7,7 @@
     <title>TMG pool at deleterium.info</title>
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
-    <script src='./index2908.js'></script>
+    <script src='./index3108.js'></script>
     <style type="text/css" media="all">
     * {
        box-sizing: border-box;
@@ -116,18 +116,18 @@
         <div class="box">
             <h3>Buy TMG</h3>
             <table>
-                <tr><td>TMG to receive:</td><td><input type="number" style="width: 25ch;" id="ipt_buy_tmg"></td></tr>
+                <tr><td>TMG to buy:</td><td><input type="number" style="width: 25ch;" id="ipt_buy_tmg"></td></tr>
                 <tr><td>Effective price:</td><td><output id="buy_effective_price"></output> Signa</td></tr>
                 <tr><td>Price impact:</td><td><output id="buy_price_impact"></output>%</td></tr>
                 <tr><td>Operational costs:&nbsp;</td><td><output id="buy_op_cost"></output> Signa</td></tr>
-                <tr><td>Signa to send:</td><td><input type="number" style="width: 25ch;" id="ipt_buy_signa"></td></tr>
+                <tr><td>Total cost:</td><td><input type="number" style="width: 25ch;" id="ipt_buy_signa"></td></tr>
             </table>
             <button id="btn_buy" class="hundred">Buy</button>
         </div>
         <div class="box">
             <h3>Sell TMG</h3>
             <table>
-                <tr><td>TMG to send:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_tmg"></td></tr>
+                <tr><td>TMG to sell:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_tmg"></td></tr>
                 <tr><td>Effective price:</td><td><output id="sell_effective_price"></output> Signa</td></tr>
                 <tr><td>Price impact:</td><td><output id="sell_price_impact"></output>%</td></tr>
                 <tr><td>Operational costs:&nbsp;</td><td><output id="sell_op_cost_signa"></output> Signa and <output id="sell_op_cost_tmg"></output> TMG</td></tr>
@@ -175,8 +175,8 @@
         <ul>
             <li>Fee for incoming transactions in Signa is 2%, 1.9% for liquidity providers and 0.1% for owner.</li>
             <li>Fees distributed at least 24 hours after last distribution, if the amount is greater than 0.42 Signa.</li>
-            <li>Fees collected in TMG will be distributed as TMG to liquidity providers without fees.</li>
             <li>Daily TMG distributions will be redistributed to liquidity providers, but discounted 5% for pool owner.</li>
+            <li>Fees collected in TMG will be distributed as TMG to liquidity providers without pool owner fee.</li>
             <li>More info and contract source code on https://github.com/deleterium/SmartC/blob/main/samples/liquidityPool.md</li>
         </ul>
     </div>
