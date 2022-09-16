@@ -7,7 +7,7 @@
     <title>TMG pool at deleterium.info</title>
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
-    <script src='./index3108.js'></script>
+    <script src='./index1609.js'></script>
     <style type="text/css" media="all">
     * {
        box-sizing: border-box;
@@ -42,6 +42,12 @@
         color: inherit;
         text-decoration: underline;
         outline: none !important;
+    }
+    .order_table {
+        width: 100%;
+    }
+    .order_table td + td {
+        text-align: center;
     }
     h2 {
         padding: 0;
@@ -157,6 +163,34 @@
             <button id="btn_remove" class="hundred">Remove</button><br>
         </div>
     </main>
+    <div class="info light">
+        <div class="box">
+            <h3>Signum order book - Buy Orders</h3>
+            <table class="order_table">
+                <thead>
+                    <tr>
+                        <th>Account</th><th>Qty</th><th>Price</th><th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="buy_orders">
+                </tbody>
+            </table>
+            * Only 5 highest shown
+        </div>
+        <div class="box">
+            <h3>Signum order book - Sell Orders</h3>
+            <table class="order_table">
+                <thead>
+                    <tr>
+                        <th>Account</th><th>Qty</th><th>Price</th><th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="sell_orders">
+                </tbody>
+            </table>
+            * Only 5 lowest shown
+        </div>
+    </div>
     <div class="status light">
         <h3>Transaction status</h3>
         <div style="border: 1px solid black; padding: 1ch;" id="transaction_status"></div>

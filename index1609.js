@@ -32,7 +32,8 @@ const Config = {
     transactionFee: 2000000n,
     appName: "TMG Signa Pool",
     networkName: "Signum",
-    slippageMessage: "ATTENTION: Shown only once\n\nCalculations are only valid if your transaction is the only one between the the time the page loads and the transaction be processed by the smart contract. Actual received values may differ."
+    slippageMessage: "ATTENTION: Shown only once\n\nCalculations are only valid if your transaction is the only one between the the time the page loads and the transaction be processed by the smart contract. Actual received values may differ.",
+    ordersToShow: "4"
 }
 
 const Global = {
@@ -770,8 +771,66 @@ async function requestContractData() {
     Stats.owner = idTOaccount(Variables.longs[27].toString(10))
 
     updateContractDetails()
+
+    getBuyOrders()
+    getSellOrders()
 }
 
+async function getBuyOrders() {
+
+    let response
+    try {
+        response = await fetch(`${Global.server}/burst?requestType=getBidOrders&asset=${Config.assetId}&firstIndex=0&lastIndex=${Config.ordersToShow}`)
+    } catch (error) {
+        document.getElementById("buy_orders").innerHTML = "";
+        console.log(error.message)
+        return;
+    }
+
+    const OrdersResp = await response.json();
+    if (OrdersResp.errorCode !== undefined) {
+        document.getElementById("buy_orders").innerHTML = "";
+        return;
+    }
+
+    let output = ""
+    for (const Order of OrdersResp.bidOrders) {
+        output += '<tr>'
+        output += `<td>${Order.accountRS}</td>`
+        output += `<td>${Number(Order.quantityQNT)/100}</td>`
+        output += `<td><strong>${Number(Order.priceNQT)/1000000}</strong></td>`
+        output += `<td>${((Number(Order.priceNQT)*Number(Order.quantityQNT))/100000000).toFixed(2)}</td>`
+        output += '</tr>'
+    }
+    document.getElementById("buy_orders").innerHTML = output;
+}
+
+async function getSellOrders() {
+    let response
+    try {
+        response = await fetch(`${Global.server}/burst?requestType=getAskOrders&asset=${Config.assetId}&firstIndex=0&lastIndex=${Config.ordersToShow}`)
+    } catch (error) {
+        console.log(error.message)
+        return;
+    }
+
+    const OrdersResp = await response.json();
+    if (OrdersResp.errorCode !== undefined) {
+        document.getElementById("sell_orders").innerHTML = "";
+        return;
+    }
+
+    let output = ""
+    for (const Order of OrdersResp.askOrders) {
+        output += '<tr>'
+        output += `<td>${Order.accountRS}</td>`
+        output += `<td>${Number(Order.quantityQNT)/100}</td>`
+        output += `<td><strong>${Number(Order.priceNQT)/1000000}</strong></td>`
+        output += `<td>${((Number(Order.priceNQT)*Number(Order.quantityQNT))/100000000).toFixed(2)}</td>`
+        output += '</tr>'
+    }
+    document.getElementById("sell_orders").innerHTML = output;
+}
 
 //Input id in unsigned long (BigInt)
 //Output string with account address (Reed-Salomon encoded)
