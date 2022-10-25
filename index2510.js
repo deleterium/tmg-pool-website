@@ -22,6 +22,14 @@ window.onload = async function () {
     if (localStorage.getItem("hasXT") === "true") {
         activateWalletXT(supressError)
     }
+
+    const exits = document.querySelectorAll('.modal-exit');
+    exits.forEach(function (exit) {
+        exit.addEventListener('click', function (event) {
+            event.preventDefault();
+            document.getElementById("modal_window").classList.remove('open');
+        });
+    });
 }
 
 const Config = {
@@ -370,7 +378,6 @@ function evtSellSigna(e) {
 }
 
 async function evtBuy() {
-    clearError()
     const userInput = document.getElementById('ipt_buy_signa').value
     let numberBalance = Number(userInput)
     if (isNaN(numberBalance)) {
@@ -407,7 +414,6 @@ async function evtBuy() {
 }
 
 async function evtSell() {
-    clearError()
     const userInput = document.getElementById('ipt_sell_tmg').value
     let numberBalance = Number(userInput)
     if (isNaN(numberBalance)) {
@@ -443,7 +449,6 @@ async function evtSell() {
 }
 
 async function evtAdd() {
-    clearError()
     const userInputTmg = document.getElementById('ipt_add_tmg').value
     let numberTmg = Number(userInputTmg)
     if (isNaN(numberTmg)) {
@@ -488,7 +493,6 @@ async function evtAdd() {
 }
 
 async function evtRemove() {
-    clearError()
     const userInput = document.getElementById('ipt_remove_lctmg').value
     let numberLctmg = Number(userInput)
     if (isNaN(numberLctmg)) {
@@ -525,15 +529,9 @@ async function evtRemove() {
 }
 
 function showError(message) {
-    Global.messageIsError = true
-    document.getElementById('transaction_status').innerHTML = message.replace(/\n/g, "<br />");
-    alert('Oh no... An error has occurred.')
-}
-
-function clearError() {
-    if (Global.messageIsError) {
-        document.getElementById('transaction_status').innerHTML = '';
-    }
+    document.getElementById('modal_heading_text').innerHTML = "Error..."
+    document.getElementById('modal_text').innerHTML = message.replace(/\n/g, "<br />");
+    document.getElementById("modal_window").classList.add('open');
 }
 
 function supressError(message) {
@@ -541,14 +539,13 @@ function supressError(message) {
 }
 
 function showSuccess(message) {
-    Global.messageIsError = false
-    document.getElementById('transaction_status').innerHTML = message.replace(/\n/g, "<br />");
-    alert('Success!!! Wait 8 minutes and check your account.')
+    document.getElementById('modal_heading_text').innerHTML = "Success!"
+    document.getElementById('modal_text').innerHTML = message.replace(/\n/g, "<br />") + "<br><br>Wait 8 minutes and check your account.";
+    document.getElementById("modal_window").classList.add('open');
 }
 
 async function activateWalletXT(errorCallback) {
     if (Global.wallet === undefined) {
-        clearError()
         if (localStorage.getItem("acceptedSlippage") !== "true") {
             if (!window.confirm(Config.slippageMessage)) {
                 return
@@ -618,7 +615,6 @@ function updateDefaultNode(selectedNode) {
 }
 
 function unlinkAccount() {
-    clearError()
     Global.walletSubscription?.unlisten()
     Global.wallet = undefined
     Global.walletResponse = undefined
