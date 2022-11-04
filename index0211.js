@@ -30,6 +30,13 @@ window.onload = async function () {
             document.getElementById("modal_window").classList.remove('open');
         });
     });
+
+    setInterval(function () {
+        requestContractData()
+        updateLinkedAccount()
+        updateStatusTable()
+    }, 30000)
+    updateStatusTable()
 }
 
 const Config = {
@@ -652,16 +659,25 @@ async function updateLinkedAccount() {
     document.getElementById('user_rs').innerText = idTOaccount(Global.walletResponse.accountId)
     document.getElementById('user_name').innerText = Global.extendedInfo.name
 
-    document.getElementById('user_signa').innerText = Global.extendedInfo.signa
-    document.getElementById('user_tmg').innerText = Global.extendedInfo.tmg
+    document.getElementById('user_signa').innerText = formatAmount(Global.extendedInfo.signa, 8)
+    document.getElementById('user_tmg').innerText = formatAmount(Global.extendedInfo.tmg, 2)
     document.getElementById('user_lctmg').innerText = Global.extendedInfo.lctmg
-    document.getElementById('user_signa_locked').innerText = Global.extendedInfo.signaLocked
-    document.getElementById('user_tmg_locked').innerText = Global.extendedInfo.tmgLocked
+    document.getElementById('user_signa_locked').innerText = formatAmount(Global.extendedInfo.signaLocked, 8)
+    document.getElementById('user_tmg_locked').innerText = formatAmount(Global.extendedInfo.tmgLocked, 2)
     document.getElementById('user_lctmg_locked').innerText = Global.extendedInfo.lctmgLocked
 
     const Params = calculateRemove(Global.extendedInfo.lctmg)
     document.getElementById('user_liquidity_signa').innerText = Params.removedSigna.toFixed(4)
     document.getElementById('user_liquidity_tmg').innerText = Params.removedAsset
+}
+
+function formatAmount(num, decimals) {
+    let strNum = num.toString();
+    const frac = strNum.split('.')[1]
+    if (!frac || frac.length <= decimals) {
+        return strNum
+    }
+    return num.toFixed(decimals)
 }
 
 async function getExtendedAccountInfo() {
@@ -740,8 +756,6 @@ async function requestContractData() {
         }
         return retObj;
     }
-
-    setTimeout(requestContractData, 60000)
 
     let response
     try {
@@ -826,6 +840,76 @@ async function getSellOrders() {
         output += '</tr>'
     }
     document.getElementById("sell_orders").innerHTML = output;
+}
+
+async function updateStatusTable() {
+    const transactions = []
+    let response
+    let respJSON
+    try {
+        response = await fetch(`${Global.server}/burst?requestType=getUnconfirmedTransactions&account=${Config.smartContractId}`)
+        respJSON = await response.json();
+    } catch (error) {
+        console.log(error.message)
+        return;
+    }
+
+    if (respJSON !== undefined && respJSON.errorCode === undefined) {
+        transactions.push(...respJSON.unconfirmedTransactions)
+    }
+    try {
+        response = await fetch(`${Global.server}/burst?requestType=getAccountTransactions&account=${Config.smartContractId}&firstIndex=0&lastIndex=50`)
+        respJSON = await response.json();
+    } catch (error) {
+        console.log(error.message)
+        return;
+    }
+    if (respJSON !== undefined && respJSON.errorCode === undefined) {
+        transactions.push(...respJSON.transactions)
+    }
+
+    let output = ""
+    for (const tx of transactions) {
+        if (tx.recipient !== Config.smartContractId) {
+            continue
+        }
+        let status = 'Processed'
+        if (!tx.confirmations) status = 'Confirmation pending'
+        if (tx.confirmations === 0) status = 'Waiting contract activation'
+        let action
+        let amount
+        switch (tx.attachment.message) {
+        case 'trade':
+            if (tx.amountNQT === '42000000') {
+                action = 'Sell'
+                amount = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
+            } else {
+                action = 'Buy TMG'
+                amount = ((Number(tx.amountNQT)/1E8)-0.42).toFixed(2) + " SIGNA"
+            }
+            break;
+        case 'add':
+            action = 'Add liquidity'
+            amount = ''
+            break;
+        case 'remove':
+            action = 'Remove liquidity'
+            amount = ''
+            break;
+        default:
+            action = 'Unknown'
+            amount = ''
+        }
+        output += '<tr>'
+        output += `<td>${status}</td>`
+        output += `<td>${action}</td>`
+        output += `<td>${amount}</td>`
+        output += `<td>${tx.senderRS}</strong></td>`
+        output += `<td>${tx.transaction}</td>`
+        output += '</tr>'
+    }
+    document.getElementById("status_tbody").innerHTML = output;
+
 }
 
 //Input id in unsigned long (BigInt)

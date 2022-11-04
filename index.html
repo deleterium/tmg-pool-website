@@ -7,7 +7,7 @@
     <title>TMG pool at deleterium.info</title>
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
-    <script src='./index2510.js'></script>
+    <script src='./index0211.js'></script>
     <style type="text/css" media="all">
     * {
        box-sizing: border-box;
@@ -84,6 +84,13 @@
     .status {
         margin: 0;
         padding: 1ch;
+    }
+    .my-table {
+        width: 100%;
+        text-align: center;
+    }
+    .my-table tbody tr:nth-of-type(2n+1) {
+        background-color: rgba(0,0,0,.05);
     }
     /* Chrome, Safari, Edge, Opera */
     input::-webkit-outer-spin-button,
@@ -239,7 +246,7 @@
                 <tbody id="buy_orders">
                 </tbody>
             </table>
-            * Only 5 highest shown
+            * Trade also at <a style="font-weight: bold; text-decoration: none;" href="https://www.signumswap.com/tokens/11955007191311588286"><span style="color: black;">Signum</span><span style="color: #8e44ad;">Swap</span></a>
         </div>
         <div class="box">
             <h3>Signum order book - Sell Orders</h3>
@@ -252,8 +259,24 @@
                 <tbody id="sell_orders">
                 </tbody>
             </table>
-            * Only 5 lowest shown
+            * Trade also at <a style="font-weight: bold; text-decoration: none;" href="https://www.signumswap.com/tokens/11955007191311588286"><span style="color: black;">Signum</span><span style="color: #8e44ad;">Swap</span></a>
         </div>
+    </div>
+    <div class="light">
+        <table class="my-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Action</th>
+                    <th>Amount</th>
+                    <th>Account</th>
+                    <th>TX ID</th>
+                </tr>
+            </thead>
+            <tbody id="status_tbody">
+
+            </tbody>
+        </table>
     </div>
     <div class="status">
         <h2>Help</h2>
