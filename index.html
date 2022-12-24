@@ -7,7 +7,7 @@
     <title>TMG pool at deleterium.info</title>
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
-    <script src='./index0211.js'></script>
+    <script src='./index2412.js'></script>
     <style type="text/css" media="all">
     * {
        box-sizing: border-box;
@@ -95,12 +95,21 @@
     /* Chrome, Safari, Edge, Opera */
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
+        appearance: none;
         -webkit-appearance: none;
         margin: 0;
     }
     /* Firefox */
     input[type=number] {
+        appearance: textfield;
         -moz-appearance: textfield;
+    }
+
+    .green {
+       color: #48AB6C;
+    }
+    .red {
+    color: #ED4348;
     }
 
     .modal {
@@ -263,6 +272,8 @@
         </div>
     </div>
     <div class="light">
+        <br>
+        <h3>Latest pool trades</h3>
         <table class="my-table">
             <thead>
                 <tr>
@@ -274,6 +285,22 @@
                 </tr>
             </thead>
             <tbody id="status_tbody">
+
+            </tbody>
+        </table>
+        <br>
+        <h3>Latest Order Book trades</h3>
+        <table class="my-table">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Account</th>
+                </tr>
+            </thead>
+            <tbody id="ob_trades_tbody">
 
             </tbody>
         </table>

@@ -35,8 +35,10 @@ window.onload = async function () {
         requestContractData()
         updateLinkedAccount()
         updateStatusTable()
+        updateOBTradesTable()
     }, 30000)
     updateStatusTable()
+    updateOBTradesTable()
 }
 
 const Config = {
@@ -878,23 +880,23 @@ async function updateStatusTable() {
         if (tx.confirmations === 0) status = 'Waiting contract activation'
         let action
         let amount
-        switch (tx.attachment.message) {
+        switch (tx.attachment?.message) {
         case 'trade':
             if (tx.amountNQT === '42000000') {
-                action = 'Sell'
+                action = '<strong class="red">Sell</strong>'
                 amount = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
             } else {
-                action = 'Buy TMG'
+                action = '<strong class="green">Buy</strong>'
                 amount = ((Number(tx.amountNQT)/1E8)-0.42).toFixed(2) + " SIGNA"
             }
             break;
         case 'add':
             action = 'Add liquidity'
-            amount = ''
+            amount = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG + " + ((Number(tx.amountNQT)/1E8)-0.42).toFixed(0) + " SIGNA"
             break;
         case 'remove':
             action = 'Remove liquidity'
-            amount = ''
+            amount = tx.attachment.quantityQNT + " lcTMG"
             break;
         default:
             action = 'Unknown'
@@ -904,11 +906,54 @@ async function updateStatusTable() {
         output += `<td>${status}</td>`
         output += `<td>${action}</td>`
         output += `<td>${amount}</td>`
-        output += `<td>${tx.senderRS}</strong></td>`
+        output += `<td>${tx.senderRS}</td>`
         output += `<td>${tx.transaction}</td>`
         output += '</tr>'
     }
     document.getElementById("status_tbody").innerHTML = output;
+
+}
+
+async function updateOBTradesTable() {
+    const trades = []
+    let response
+    let respJSON
+    try {
+        response = await fetch(`${Global.server}/burst?requestType=getTrades&asset=${Config.assetId}&firstIndex=0&lastIndex=20`)
+        respJSON = await response.json();
+    } catch (error) {
+        console.log(error.message)
+        return;
+    }
+
+    if (respJSON !== undefined && respJSON.errorCode === undefined) {
+        trades.push(...respJSON.trades)
+    }
+
+    let output = ""
+    for (const tx of trades) {
+        let action, quantity, account
+        const total = ((Number(tx.quantityQNT) * Number(tx.priceNQT))/1e8).toFixed(2)
+        const price = (Number(tx.priceNQT)/1e6)
+        if (tx.tradeType === 'sell') {
+            action = '<strong class="red">Sell</strong>'
+            quantity = (Number(tx.quantityQNT)/100).toString() + " TMG"
+            account = tx.sellerRS
+        } else {
+            action = '<strong class="green">Buy</strong>'
+            quantity = ((Number(tx.quantityQNT)/100)).toString() + " TMG"
+            account = tx.buyerRS
+        }
+        output += '<tr>'
+        // output += `<td>${date}</td>`
+        output += `<td>${action}</td>`
+        output += `<td>${quantity}</td>`
+        output += `<td><strong>${price}</strong></td>`
+        output += `<td>${total}</td>`
+        output += `<td>${account}</td>`
+        output += '</tr>'
+    }
+    document.getElementById("ob_trades_tbody").innerHTML = output;
 
 }
 
