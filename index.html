@@ -7,7 +7,7 @@
     <title>TMG pool at deleterium.info</title>
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
-    <script src='./index2412.js'></script>
+    <script src='./index2512.js'></script>
     <style type="text/css" media="all">
     * {
        box-sizing: border-box;
@@ -273,26 +273,12 @@
     </div>
     <div class="light">
         <br>
-        <h3>Latest pool trades</h3>
+        <h3>Latest pool trades <br><small>* pool fees not included</small></h3>
         <table class="my-table">
             <thead>
                 <tr>
+                    <th>Date</th>
                     <th>Status</th>
-                    <th>Action</th>
-                    <th>Amount</th>
-                    <th>Account</th>
-                    <th>TX ID</th>
-                </tr>
-            </thead>
-            <tbody id="status_tbody">
-
-            </tbody>
-        </table>
-        <br>
-        <h3>Latest Order Book trades</h3>
-        <table class="my-table">
-            <thead>
-                <tr>
                     <th>Action</th>
                     <th>Quantity</th>
                     <th>Price</th>
@@ -300,6 +286,10 @@
                     <th>Account</th>
                 </tr>
             </thead>
+            <tbody id="status_tbody">
+
+            </tbody>
+            <tr><td colspan="7"><h3><br>Order Book trades</h3></td></tr>
             <tbody id="ob_trades_tbody">
 
             </tbody>
@@ -314,6 +304,7 @@
             <li><strong>Transaction fee:</strong> Fee for sending one transaction: 0.02 Signa</li>
             <li><strong>Smart contract fee:</strong> Fee needed for contract activation and calculations: 0.42 Signa</li>
             <li><strong>Pool fee:</strong> 2% for trades, charged in Signa for buy and or TMG for sale. No fees for liquidity addition or removal.</li>
+            <li><strong>Contact:</strong> Join Discord <a href="https://discord.gg/pQHnBRYE5c">SmartC Channel</a> and ask questions at #tmg-pool.</li>
         </ul>
         <h2>Contract details</h2>
         <ul>

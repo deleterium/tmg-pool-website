@@ -62,7 +62,7 @@ const Global = {
     messageIsError: false
 }
 
-const Stats = {
+let Stats = {
     signaTotal: 0n,
     assetTotal: 0n,
     aPrice: 0,
@@ -71,6 +71,8 @@ const Stats = {
     lastDistribution: 0,
     owner: ""
 }
+
+const PoolHistory = {}
 
 function numberToNQT(val) {
     return BigInt((val*1E8).toFixed(0))
@@ -734,7 +736,7 @@ function updateContractDetails() {
     document.getElementById("contract_liquidity").innerText = Number(Stats.currentLiquidity)
 }
 
-async function requestContractData() {
+async function getPoolStatsAtHeight(height) {
     function decodeMemory(hexstring){
         const retObj = {
             longs: [],
@@ -759,28 +761,44 @@ async function requestContractData() {
         return retObj;
     }
 
+    if (!height) {
+        height = ''
+    } else {
+        if (PoolHistory[height]) {
+            return PoolHistory[height]
+        }
+    }
+
     let response
     try {
-        response = await fetch(`${Global.server}/burst?requestType=getATDetails&at=${Config.smartContractId}`)
+        response = await fetch(`${Global.server}/burst?requestType=getATDetails&at=${Config.smartContractId}&height=${height}`)
     } catch (error) {
         console.log(error.message)
-        return;
+        return {};
     }
 
     const contractInfo = await response.json();
     if (contractInfo.machineData === undefined) {
-        return;
+        return {};
     }
 
     const Variables = decodeMemory(contractInfo.machineData)
-    Stats.signaTotal = Variables.longs[16]
-    Stats.assetTotal = Variables.longs[17]
-    Stats.aPrice = (Number(Stats.signaTotal)/1E6) / Number(Stats.assetTotal)
-    Stats.trades = Number(Variables.longs[20])
-    Stats.volume = Variables.longs[21]
-    Stats.currentLiquidity = Variables.longs[22]
-    Stats.lastDistribution = Number(Variables.longs[25])
-    Stats.owner = idTOaccount(Variables.longs[27].toString(10))
+    PoolHistory[contractInfo.nextBlock] = {
+        signaTotal: Variables.longs[16],
+        assetTotal: Variables.longs[17],
+        aPrice: (Number(Variables.longs[16])/1E6) / Number(Variables.longs[17]),
+        trades: Number(Variables.longs[20]),
+        volume: Variables.longs[21],
+        currentLiquidity: Variables.longs[22],
+        lastDistribution: Number(Variables.longs[25]),
+        owner: idTOaccount(Variables.longs[27].toString(10))
+    }
+    return PoolHistory[contractInfo.nextBlock]
+}
+
+async function requestContractData() {
+
+    Stats = await getPoolStatsAtHeight()
 
     updateContractDetails()
 
@@ -870,6 +888,9 @@ async function updateStatusTable() {
         transactions.push(...respJSON.transactions)
     }
 
+    const getTotals = []
+    const getQuantities = []
+
     let output = ""
     for (const tx of transactions) {
         if (tx.recipient !== Config.smartContractId) {
@@ -879,39 +900,94 @@ async function updateStatusTable() {
         if (!tx.confirmations) status = 'Confirmation pending'
         if (tx.confirmations === 0) status = 'Waiting contract activation'
         let action
-        let amount
+        let quantity = ''
+        let total = ''
+        let price = ''
         switch (tx.attachment?.message) {
         case 'trade':
             if (tx.amountNQT === '42000000') {
                 action = '<strong class="red">Sell</strong>'
-                amount = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
+                quantity = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
+                if (status === 'Processed') {
+                    price = `<span id='${tx.transaction + 'price'}'>...</span>`
+                    total = `<span id='${tx.transaction + 'total'}'>...</span>`
+                    getTotals.push({
+                        transaction: tx.transaction,
+                        quantity: Number(tx.attachment.quantityQNT)/100,
+                        height: tx.height
+                    })
+                }
             } else {
                 action = '<strong class="green">Buy</strong>'
-                amount = ((Number(tx.amountNQT)/1E8)-0.42).toFixed(2) + " SIGNA"
+                total = ((Number(tx.amountNQT)/1E8)-0.42).toFixed(2)
+                if (status === 'Processed') {
+                    price = `<span id='${tx.transaction + 'price'}'>...</span>`
+                    quantity = `<span id='${tx.transaction + 'quantity'}'>...</span>`
+                    getQuantities.push({
+                        transaction: tx.transaction,
+                        total: (Number(tx.amountNQT)/1E8)-0.42,
+                        height: tx.height
+                    })
+                }
             }
             break;
         case 'add':
             action = 'Add liquidity'
-            amount = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG + " + ((Number(tx.amountNQT)/1E8)-0.42).toFixed(0) + " SIGNA"
+            quantity = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
+            total =  ((Number(tx.amountNQT)/1E8)-0.42).toFixed(0) + " SIGNA"
             break;
         case 'remove':
             action = 'Remove liquidity'
-            amount = tx.attachment.quantityQNT + " lcTMG"
+            quantity = tx.attachment.quantityQNT + " lcTMG"
             break;
         default:
             action = 'Unknown'
-            amount = ''
         }
         output += '<tr>'
+        output += `<td>${formatTimestamp(tx.timestamp)}</td>`
         output += `<td>${status}</td>`
         output += `<td>${action}</td>`
-        output += `<td>${amount}</td>`
+        output += `<td>${quantity}</td>`
+        output += `<td><strong>${price}</strong></td>`
+        output += `<td>${total}</td>`
         output += `<td>${tx.senderRS}</td>`
-        output += `<td>${tx.transaction}</td>`
         output += '</tr>'
     }
     document.getElementById("status_tbody").innerHTML = output;
 
+    fillTotals(getTotals)
+    fillQuantities(getQuantities)
+}
+
+async function fillTotals(infoArray) {
+    for (item of infoArray) {
+        solveTotal(item)      
+    }
+}
+async function fillQuantities(infoArray) {
+    for (item of infoArray) {
+        solveQuantity(item)      
+    }
+}
+async function solveTotal(item) {
+    const price = await getTMGPriceAtHeight(item.height + 1)
+    const total = ((item.quantity * price)).toFixed(2)
+    document.getElementById(`${item.transaction}price`).innerText = (price).toFixed(2)
+    document.getElementById(`${item.transaction}total`).innerText = total
+}
+async function solveQuantity(item) {
+    const price = await getTMGPriceAtHeight(item.height + 1)
+    const quantity = ((item.total / price) - 0.005).toFixed(2)
+    document.getElementById(`${item.transaction}price`).innerText = (price).toFixed(2)
+    document.getElementById(`${item.transaction}quantity`).innerText = quantity
+}
+
+async function getTMGPriceAtHeight(height) {
+    const stats = await getPoolStatsAtHeight(height)
+    if (!stats.aPrice) {
+        throw new Error(`pool stats at height ${height} not found.`)
+    }
+    return stats.aPrice
 }
 
 async function updateOBTradesTable() {
@@ -945,7 +1021,8 @@ async function updateOBTradesTable() {
             account = tx.buyerRS
         }
         output += '<tr>'
-        // output += `<td>${date}</td>`
+        output += `<td>${formatTimestamp(tx.timestamp)}</td>`
+        output += '<td>Processed</td>'
         output += `<td>${action}</td>`
         output += `<td>${quantity}</td>`
         output += `<td><strong>${price}</strong></td>`
@@ -955,6 +1032,19 @@ async function updateOBTradesTable() {
     }
     document.getElementById("ob_trades_tbody").innerHTML = output;
 
+}
+
+function formatTimestamp (timestamp, date_only) {
+    let date
+    if (timestamp instanceof Date) {
+        date = timestamp
+    } else {
+        date = new Date(Date.UTC(2014, 7, 11, 2, 0, 0, 0) + timestamp * 1000)
+    }
+    if (date_only) {
+        return date.toLocaleDateString()
+    }
+    return date.toLocaleString()
 }
 
 //Input id in unsigned long (BigInt)
