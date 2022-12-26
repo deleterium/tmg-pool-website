@@ -7,7 +7,7 @@
     <title>TMG pool at deleterium.info</title>
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
-    <script src='./index2512.js'></script>
+    <script src='./index2612.js'></script>
     <style type="text/css" media="all">
     * {
        box-sizing: border-box;
@@ -106,10 +106,14 @@
     }
 
     .green {
-       color: #48AB6C;
+       color: #449f65;
     }
     .red {
-    color: #ED4348;
+    color: #d83c41;
+    }
+
+    .estimated {
+        font-style: italic;
     }
 
     .modal {
@@ -192,9 +196,11 @@
             <h3>Pool info :: 1 TMG &lt;=&gt; <output id="contract_price"></output> Signa<br></h3>
             <table>
                 <tr><td>Pool address:&nbsp;</td><td><output id="contract_rs"></output></td></tr>
-                <tr><td>Pool size:</td><td><output id="contract_signa"></output> Signa x <output id="contract_tmg"></output> TMG</td></tr>
-                <tr><td>Liquidity:</td><td><output id="contract_liquidity"></output> lcTMG</td></tr>
-                <tr><td>Pool owner:</td><td><output id="contract_owner"></output></td></tr>
+                <tr><td>Variation (24hr):&nbsp;</td><td><output id="contract_variation_24hr"></output></td></tr>
+                <tr><td>Volume (24hr):&nbsp;</td><td><output id="contract_volume_24hr"></output> Signa</td></tr>
+                <tr><td>Pool size:&nbsp;</td><td><output id="contract_signa"></output> Signa x <output id="contract_tmg"></output> TMG</td></tr>
+                <tr><td>Liquidity:&nbsp;</td><td><output id="contract_liquidity"></output> lcTMG</td></tr>
+                <tr><td>Pool owner:&nbsp;</td><td><output id="contract_owner"></output></td></tr>
             </table>
         </div>
     </div>

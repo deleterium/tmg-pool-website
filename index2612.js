@@ -799,11 +799,44 @@ async function getPoolStatsAtHeight(height) {
 async function requestContractData() {
 
     Stats = await getPoolStatsAtHeight()
-
     updateContractDetails()
+
+    update24hrStatus()
+
 
     getBuyOrders()
     getSellOrders()
+}
+
+async function update24hrStatus() {
+    let response
+    try {
+        response = await fetch(`${Global.server}/burst?requestType=getBlockchainStatus`)
+    } catch (error) {
+        document.getElementById("contract_variation_24hr").innerHTML = "?";
+        document.getElementById("contract_volume_24hr").innerHTML = "?";
+        console.log(error.message)
+        return;
+    }
+
+    const status = await response.json();
+    if (status.errorCode !== undefined) {
+        return;
+    }
+
+    oneDayAgo = await getPoolStatsAtHeight(status.numberOfBlocks - 361)
+    if (!oneDayAgo.aPrice) {
+        document.getElementById("contract_variation_24hr").innerHTML = "?";
+        document.getElementById("contract_volume_24hr").innerHTML = "?";
+        console.log(error.message)
+    }
+
+    if (Stats.aPrice - oneDayAgo.aPrice >= 0) {
+        document.getElementById('contract_variation_24hr').innerHTML = `<strong class='green'>+${(Stats.aPrice - oneDayAgo.aPrice).toFixed(1)}%</strong>`
+    } else {
+        document.getElementById('contract_variation_24hr').innerHTML = `<strong class='red'>${(Stats.aPrice - oneDayAgo.aPrice).toFixed(1)}%</strong>`
+    }
+    document.getElementById('contract_volume_24hr').innerHTML = (Number(Stats.volume - oneDayAgo.volume)/1E8).toFixed(2)
 }
 
 async function getBuyOrders() {
@@ -910,7 +943,7 @@ async function updateStatusTable() {
                 quantity = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
                 if (status === 'Processed') {
                     price = `<span id='${tx.transaction + 'price'}'>...</span>`
-                    total = `<span id='${tx.transaction + 'total'}'>...</span>`
+                    total = `<span title='Estimated value. Fees to apply.' class='estimated' id='${tx.transaction + 'total'}'>...</span>`
                     getTotals.push({
                         transaction: tx.transaction,
                         quantity: Number(tx.attachment.quantityQNT)/100,
@@ -919,13 +952,13 @@ async function updateStatusTable() {
                 }
             } else {
                 action = '<strong class="green">Buy</strong>'
-                total = ((Number(tx.amountNQT)/1E8)-0.42).toFixed(2)
+                total = ((Number(tx.amountNQT)/1E8)).toFixed(2)
                 if (status === 'Processed') {
                     price = `<span id='${tx.transaction + 'price'}'>...</span>`
-                    quantity = `<span id='${tx.transaction + 'quantity'}'>...</span>`
+                    quantity = `<span title='Estimated value. Fees to apply.' class='estimated' id='${tx.transaction + 'quantity'}'>...</span>`
                     getQuantities.push({
                         transaction: tx.transaction,
-                        total: (Number(tx.amountNQT)/1E8)-0.42,
+                        total: (Number(tx.amountNQT)/1E8),
                         height: tx.height
                     })
                 }
@@ -934,7 +967,7 @@ async function updateStatusTable() {
         case 'add':
             action = 'Add liquidity'
             quantity = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
-            total =  ((Number(tx.amountNQT)/1E8)-0.42).toFixed(0) + " SIGNA"
+            total =  ((Number(tx.amountNQT)/1E8)).toFixed(0) + " SIGNA"
             break;
         case 'remove':
             action = 'Remove liquidity'
