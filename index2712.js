@@ -936,29 +936,34 @@ async function updateStatusTable() {
         let quantity = ''
         let total = ''
         let price = ''
+        let fees = ''
         switch (tx.attachment?.message) {
         case 'trade':
             if (tx.amountNQT === '42000000') {
                 action = '<strong class="red">Sell</strong>'
-                quantity = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
+                const effQty = BigInt(tx.attachment.quantityQNT) * 98n / 100n
+                fees = `${Number(BigInt(tx.attachment.quantityQNT) - effQty)/100} TMG + 0.42 Signa`
+                quantity = (Number(tx.attachment.quantityQNT)/100).toString()
                 if (status === 'Processed') {
                     price = `<span id='${tx.transaction + 'price'}'>...</span>`
-                    total = `<span title='Estimated value. Fees to apply.' class='estimated' id='${tx.transaction + 'total'}'>...</span>`
+                    total = `<span id='${tx.transaction + 'total'}'>...</span>`
                     getTotals.push({
                         transaction: tx.transaction,
-                        quantity: Number(tx.attachment.quantityQNT)/100,
+                        quantity: effQty,
                         height: tx.height
                     })
                 }
             } else {
                 action = '<strong class="green">Buy</strong>'
-                total = ((Number(tx.amountNQT)/1E8)).toFixed(2)
+                const effTotal = (BigInt(tx.amountNQT) - 42000000n) * 98n / 100n
+                fees = (Number(BigInt(tx.amountNQT) - effTotal)/1E8).toFixed(4) + ' Signa'
+                total = (Number(tx.amountNQT)/1E8).toFixed(4)
                 if (status === 'Processed') {
                     price = `<span id='${tx.transaction + 'price'}'>...</span>`
-                    quantity = `<span title='Estimated value. Fees to apply.' class='estimated' id='${tx.transaction + 'quantity'}'>...</span>`
+                    quantity = `<span id='${tx.transaction + 'quantity'}'>...</span>`
                     getQuantities.push({
                         transaction: tx.transaction,
-                        total: (Number(tx.amountNQT)/1E8),
+                        total: effTotal,
                         height: tx.height
                     })
                 }
@@ -966,11 +971,13 @@ async function updateStatusTable() {
             break;
         case 'add':
             action = 'Add liquidity'
-            quantity = (Number(tx.attachment.quantityQNT)/100).toString() + " TMG"
-            total =  ((Number(tx.amountNQT)/1E8)).toFixed(0) + " SIGNA"
+            quantity = (Number(tx.attachment.quantityQNT)/100).toString()
+            total =  ((Number(tx.amountNQT)/1E8)).toFixed(4)
+            fees = '0.42 Signa'
             break;
         case 'remove':
             action = 'Remove liquidity'
+            fees = '0.42 Signa'
             quantity = tx.attachment.quantityQNT + " lcTMG"
             break;
         default:
@@ -984,6 +991,7 @@ async function updateStatusTable() {
         output += `<td><strong>${price}</strong></td>`
         output += `<td>${total}</td>`
         output += `<td>${tx.senderRS}</td>`
+        output += `<td>${fees}</td>`
         output += '</tr>'
     }
     document.getElementById("status_tbody").innerHTML = output;
@@ -1003,15 +1011,17 @@ async function fillQuantities(infoArray) {
     }
 }
 async function solveTotal(item) {
-    const price = await getTMGPriceAtHeight(item.height + 1)
-    const total = ((item.quantity * price)).toFixed(2)
-    document.getElementById(`${item.transaction}price`).innerText = (price).toFixed(2)
+    const statsN_1 = await getPoolStatsAtHeight(item.height)
+    const statsN = await getPoolStatsAtHeight(item.height + 1)
+    const total = (Number(item.quantity * statsN.signaTotal / statsN_1.assetTotal) / 1E8).toFixed(4)
+    document.getElementById(`${item.transaction}price`).innerText = (Number(statsN.signaTotal / statsN_1.assetTotal) / 1E6).toFixed(4)
     document.getElementById(`${item.transaction}total`).innerText = total
 }
 async function solveQuantity(item) {
-    const price = await getTMGPriceAtHeight(item.height + 1)
-    const quantity = ((item.total / price) - 0.005).toFixed(2)
-    document.getElementById(`${item.transaction}price`).innerText = (price).toFixed(2)
+    const statsN_1 = await getPoolStatsAtHeight(item.height)
+    const statsN = await getPoolStatsAtHeight(item.height + 1)
+    const quantity = Number(item.total * statsN_1.assetTotal / statsN.signaTotal) / 100
+    document.getElementById(`${item.transaction}price`).innerText = (Number(statsN.signaTotal / statsN_1.assetTotal) / 1E6).toFixed(4)
     document.getElementById(`${item.transaction}quantity`).innerText = quantity
 }
 
@@ -1061,6 +1071,7 @@ async function updateOBTradesTable() {
         output += `<td><strong>${price}</strong></td>`
         output += `<td>${total}</td>`
         output += `<td>${account}</td>`
+        output += '<td></td>'
         output += '</tr>'
     }
     document.getElementById("ob_trades_tbody").innerHTML = output;
