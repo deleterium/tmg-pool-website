@@ -783,7 +783,7 @@ async function getPoolStatsAtHeight(height) {
     }
 
     const Variables = decodeMemory(contractInfo.machineData)
-    PoolHistory[contractInfo.nextBlock] = {
+    PoolHistory[height] = {
         signaTotal: Variables.longs[16],
         assetTotal: Variables.longs[17],
         aPrice: (Number(Variables.longs[16])/1E6) / Number(Variables.longs[17]),
@@ -793,7 +793,7 @@ async function getPoolStatsAtHeight(height) {
         lastDistribution: Number(Variables.longs[25]),
         owner: idTOaccount(Variables.longs[27].toString(10))
     }
-    return PoolHistory[contractInfo.nextBlock]
+    return PoolHistory[height]
 }
 
 async function requestContractData() {
@@ -1023,14 +1023,6 @@ async function solveQuantity(item) {
     const quantity = Number(item.total * statsN_1.assetTotal / statsN.signaTotal) / 100
     document.getElementById(`${item.transaction}price`).innerText = (Number(statsN.signaTotal / statsN_1.assetTotal) / 1E6).toFixed(4)
     document.getElementById(`${item.transaction}quantity`).innerText = quantity
-}
-
-async function getTMGPriceAtHeight(height) {
-    const stats = await getPoolStatsAtHeight(height)
-    if (!stats.aPrice) {
-        throw new Error(`pool stats at height ${height} not found.`)
-    }
-    return stats.aPrice
 }
 
 async function updateOBTradesTable() {
