@@ -42,11 +42,6 @@
             grid-template-columns: 1fr 1fr;
         }
     }
-    @media only screen and (min-width: 240ch) {
-            main, .info {
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-        }
-    }
 
     a:visited, a:hover, a:active, a:focus {
         color: inherit;
@@ -124,6 +119,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 2;
     }
     .open {
         visibility: visible;
@@ -158,7 +154,59 @@
         padding-top: 0;
         margin-top: 0;
     }
-    </style>
+
+    .scene {
+  margin: 40px 0;
+  position: relative;
+  width: 55ch;
+  height: 30ch;
+  perspective: 1000px;
+  
+}
+
+.carousel {
+  width: 60ch;
+  height: 30ch;
+  position: absolute;
+  transform: translateZ(-40ch);
+  transform-style: preserve-3d;
+  transition: transform 1s;
+}
+
+.carousel__cell {
+  position: absolute;
+  transition: transform 1s, opacity 1s;
+  width: 55ch;
+  height: 30ch;
+  background-color: #114e642a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.carousel__cell:nth-child(1) { transform: rotateY(  0deg) translateZ(25ch); }
+.carousel__cell:nth-child(2) { transform: rotateY( 90deg) translateZ(25ch); }
+.carousel__cell:nth-child(3) { transform: rotateY( 180deg) translateZ(25ch); }
+.carousel__cell:nth-child(4) { transform: rotateY(270deg) translateZ(25ch); }
+
+.carousel-row {
+    display: flex;
+    align-items: center;
+    gap: 2ch;
+    justify-content: center;
+}
+.previous-button, .next-button {
+    font-size: xx-large;
+}
+
+.carousel-options {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  background: hsla(0, 0%, 100%, 0.8);
+}
+
+</style>
 </head>
 <body>
     <div class="modal" id="modal_window">
@@ -200,8 +248,11 @@
             </table>
         </div>
     </div>
-    <main class="light">
-        <div class="box">
+    <main class="light carousel-row">
+        <div class="scene">
+            <div class="carousel">
+        <div class="carousel__cell">
+            <div class="box">
             <h3>Buy TMG</h3>
             <table>
                 <tr><td>TMG to buy:</td><td><input type="number" style="width: 25ch;" id="ipt_buy_tmg"></td></tr>
@@ -212,7 +263,9 @@
             </table>
             <button id="btn_buy" class="hundred">Buy</button>
         </div>
-        <div class="box">
+        </div>
+        <div class="carousel__cell">
+            <div class="box">
             <h3>Sell TMG</h3>
             <table>
                 <tr><td>TMG to sell:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_tmg"></td></tr>
@@ -222,8 +275,10 @@
                 <tr><td>Signa to receive:</td><td><input type="number" style="width: 25ch;" id="ipt_sell_signa"></td></tr>
             </table>
             <button id="btn_sell" class="hundred">Sell</button><br>
+            </div>
         </div>
-        <div class="box">
+        <div class="carousel__cell">
+            <div class="box">
             <h3>Add liquidity</h3>
             <table>
                 <tr><td>TMG to add:</td><td> <input type="number" style="width: 25ch;" id="ipt_add_tmg"></td></tr>
@@ -233,8 +288,10 @@
                 <tr><td>Added liquidity:</td><td><output id="add_lctmg"></output> lcTMG</td></tr>
             </table>
             <button id="btn_add" class="hundred">Add</button><br>
+            </div>
         </div>
-        <div class="box">
+        <div class="carousel__cell">
+            <div class="box">
             <h3>Remove liquidity</h3>
             <table>
                 <tr><td>lcTMG to remove:</td><td><input type="number" style="width: 25ch;" id="ipt_remove_lctmg"></td></tr>
@@ -244,7 +301,15 @@
             </table>
             <button id="btn_remove" class="hundred">Remove</button><br>
         </div>
+    </div>
+    </div>
+    </div>
+    <div>
+    <button class="previous-button">&#9650;</button><br><br>
+    <button class="next-button">&#9660;</button>
+    </div>
     </main>
+
     <div class="info light">
         <div class="box">
             <h3>Signum order book - Buy Orders</h3>
@@ -325,5 +390,49 @@
         <a href="https://github.com/signum-network/signumjs#readme"><img src="./Signum_Badge_JS.svg" height="32px"></a>&nbsp;&nbsp;
     </footer>
 
+    <script>
+        var carousel = document.querySelector('.carousel');
+var cells = carousel.querySelectorAll('.carousel__cell');
+var cellCount; // cellCount set from cells-range input value
+var selectedIndex = 0;
+var cellWidth = carousel.offsetWidth;
+var cellHeight = carousel.offsetHeight;
+var isHorizontal = true;
+var rotateFn = 'rotateX';
+var radius, theta;
+
+function rotateCarousel() {
+  var angle = theta * selectedIndex * -1;
+  carousel.style.transform = 'translateZ(' + -radius + 'px) ' + 
+    rotateFn + '(' + angle + 'deg)';
+}
+
+var prevButton = document.querySelector('.previous-button');
+prevButton.addEventListener( 'click', function() {
+  selectedIndex--;
+  rotateCarousel();
+});
+
+var nextButton = document.querySelector('.next-button');
+nextButton.addEventListener( 'click', function() {
+  selectedIndex++;
+  rotateCarousel();
+});
+
+function changeCarousel(cellCount) {
+  theta = 360 / cellCount;
+  const cellSize = cellHeight;
+  radius = Math.round( ( cellSize / 2) / Math.tan( Math.PI / cellCount ) );
+  for ( let i=0; i < cells.length; i++ ) {
+      const cellAngle = theta * i;
+      cells[i].style.transform = rotateFn + '(' + cellAngle + 'deg) translateZ(' + radius + 'px)';
+  }
+  rotateCarousel();
+}
+
+// set initials
+changeCarousel(4);
+
+    </script>
 </body>
 </html>
