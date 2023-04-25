@@ -39,6 +39,43 @@ window.onload = async function () {
     }, 30000)
     updateStatusTable()
     updateOBTradesTable()
+
+    Highcharts.getJSON('https://deleterium.info/tmg_api/getDailyOHLC/?start=0', function (data) {
+
+        // create the chart
+        Highcharts.stockChart('container', {
+            title: {
+                text: 'TMG Token price by day'
+            },
+
+            rangeSelector: {
+                buttons: [{
+                    type: 'week',
+                    count: 1,
+                    text: '1W'
+                },{
+                    type: 'month',
+                    count: 1,
+                    text: '1M'
+                }, {
+                    type: 'all',
+                    count: 1,
+                    text: 'All'
+                }],
+                selected: 1,
+                inputEnabled: false
+            },
+
+            series: [{
+                name: 'TMG',
+                type: 'candlestick',
+                data: data,
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }]
+        });
+    });
 }
 
 const Config = {
