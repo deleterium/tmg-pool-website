@@ -40,42 +40,77 @@ window.onload = async function () {
     updateStatusTable()
     updateOBTradesTable()
 
-    Highcharts.getJSON('https://deleterium.info/tmg_api/getDailyOHLC/?start=0', function (data) {
+    // create the chart
+    const myChart = Highcharts.stockChart('container', {
+        title: {
+            text: 'TMG Token price by day'
+        },
 
-        // create the chart
-        Highcharts.stockChart('container', {
-            title: {
-                text: 'TMG Token price by day'
-            },
+        rangeSelector: {
+            buttons: [{
+                type: 'week',
+                count: 1,
+                text: '1W'
+            },{
+                type: 'month',
+                count: 1,
+                text: '1M'
+            }, {
+                type: 'all',
+                count: 1,
+                text: 'All'
+            }],
+            selected: 1,
+            inputEnabled: false
+        },
 
-            rangeSelector: {
-                buttons: [{
-                    type: 'week',
-                    count: 1,
-                    text: '1W'
-                },{
-                    type: 'month',
-                    count: 1,
-                    text: '1M'
-                }, {
-                    type: 'all',
-                    count: 1,
-                    text: 'All'
-                }],
-                selected: 1,
-                inputEnabled: false
-            },
-
-            series: [{
-                name: 'TMG',
-                type: 'candlestick',
-                data: data,
-                tooltip: {
-                    valueDecimals: 2
-                }
-            }]
-        });
+        series: [{
+            name: 'TMG',
+            type: 'candlestick',
+            color: '#d83c41',
+            data: [],
+            tooltip: {
+                valueDecimals: 2
+            }
+        }]
     });
+
+    async function updateChart() {
+        const chartData = localStorage.getItem("tmg_pool_chart_data")
+        let data
+        let jChartData
+        if (!chartData) {
+            try {
+                const response = await fetch('https://deleterium.info/tmg_api/getDailyOHLC/?start=0')
+                jChartData = await response.json();
+            } catch (error) {
+                console.log(error.message)
+                return;
+            }
+        } else {
+            jChartData = JSON.parse(chartData)
+            jChartData.pop()
+            const lastPopItem = jChartData.pop()
+            try {
+                const response = await fetch(`https://deleterium.info/tmg_api/getDailyOHLC/?start=${lastPopItem[0] / 1000}`)
+                data = await response.json();
+            } catch (error) {
+                console.log(error.message)
+                return;
+            }
+            // BUG (API does not aswer correct 'open' field)
+            data[0][1] = jChartData[jChartData.length - 1][4]
+            jChartData = jChartData.concat(data)
+        }
+        myChart.series[0].setData( jChartData );
+        localStorage.setItem('tmg_pool_chart_data', JSON.stringify(jChartData))
+    }
+
+    setInterval(function () {
+        updateChart()
+    }, 300000)
+
+    updateChart()
 }
 
 const Config = {
@@ -861,7 +896,7 @@ async function update24hrStatus() {
         return;
     }
 
-    oneDayAgo = await getPoolStatsAtHeight(status.numberOfBlocks - 361)
+    const oneDayAgo = await getPoolStatsAtHeight(status.numberOfBlocks - 361)
     if (!oneDayAgo.aPrice) {
         document.getElementById("contract_variation_24hr").innerHTML = "?";
         document.getElementById("contract_volume_24hr").innerHTML = "?";
@@ -1038,12 +1073,12 @@ async function updateStatusTable() {
 }
 
 async function fillTotals(infoArray) {
-    for (item of infoArray) {
+    for (const item of infoArray) {
         solveTotal(item)      
     }
 }
 async function fillQuantities(infoArray) {
-    for (item of infoArray) {
+    for (const item of infoArray) {
         solveQuantity(item)      
     }
 }
