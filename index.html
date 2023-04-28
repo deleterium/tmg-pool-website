@@ -7,7 +7,7 @@
     <title>TMG pool at deleterium.info</title>
     <script src="https://cdn.jsdelivr.net/npm/@signumjs/core/dist/signumjs.min.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/@signumjs/wallets/dist/signumjs.wallets.min.js'></script>
-    <script src='./index2604.js'></script>
+    <script src='./index2804.js'></script>
     <style type="text/css" media="all">
     * {
        box-sizing: border-box;
@@ -206,13 +206,8 @@
   background: hsla(0, 0%, 100%, 0.8);
 }
 
-#container {
-    height: 400px;
-    min-width: 310px;
-    margin: 0 1ch;
-    padding: 1ch;
+#container, #containerNotch {
     border-radius: 2ch;
-    border: 2px solid  rgb(17, 78, 100);
 }
 
 </style>
@@ -227,7 +222,7 @@
         </div>
     </div>
     <header>
-        <div><h2>TMG Pool @ deleterium.info</h2>Buy and sell TMG tokens at Signum cryptocurrency. <small>(v23.04.25)</small></div>
+        <div><h2>TMG Pool @ deleterium.info</h2>Buy and sell TMG tokens at Signum cryptocurrency. <small>(v23.04.28)</small></div>
         <div>
             <div name="linked" style="display: none;"><button id="btn_unlink">Unlink</button></div>
             <div name="unlinked"><button id="btn_link">Connect to XT wallet</button></div>
@@ -348,13 +343,19 @@
         </div>
     </div>
 
-    <div class="light">
-        <script src="https://code.highcharts.com/stock/highstock.js"></script>
-        <script src="https://code.highcharts.com/stock/modules/data.js"></script>
-        <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-        <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-
-        <div id="container"></div>
+    <div class="info light">
+        <div class="box">
+            <script src="https://code.highcharts.com/stock/highstock.js"></script>
+            <script src="https://code.highcharts.com/stock/modules/data.js"></script>
+            <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+            <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+            <div id="container"></div>
+        </div>
+        <div class="box">
+            <script src="https://code.highcharts.com/highcharts.js"></script>
+            <!-- <script src="https://code.highcharts.com/modules/accessibility.js"></script> -->
+            <div id="containerNotch"></div>
+        </div>
     </div>
 
     <div class="light">

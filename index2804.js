@@ -41,9 +41,9 @@ window.onload = async function () {
     updateOBTradesTable()
 
     // create the chart
-    const myChart = Highcharts.stockChart('container', {
+    Global.histChart = Highcharts.stockChart('container', {
         title: {
-            text: 'TMG Token price by day'
+            text: 'TMG price - Liquidity pool'
         },
 
         rangeSelector: {
@@ -102,7 +102,7 @@ window.onload = async function () {
             data[0][1] = jChartData[jChartData.length - 1][4]
             jChartData = jChartData.concat(data)
         }
-        myChart.series[0].setData( jChartData );
+        Global.histChart.series[0].setData( jChartData );
         localStorage.setItem('tmg_pool_chart_data', JSON.stringify(jChartData))
     }
 
@@ -111,6 +111,81 @@ window.onload = async function () {
     }, 300000)
 
     updateChart()
+
+    // Notch chart
+    Global.notchChart = Highcharts.chart('containerNotch', {
+        chart: {
+            type: 'area',
+            zoomType: 'xy'
+        },
+        title: {
+            text: 'TMG Market Depth - Order book'
+        },
+        xAxis: {
+            minPadding: 0,
+            maxPadding: 0,
+            plotLines: [{
+                color: '#888',
+                value: 0.1523,
+                width: 1,
+                label: {
+                    text: 'Actual price',
+                    rotation: 90
+                }
+            }],
+            title: {
+                text: 'Price'
+            }
+        },
+        yAxis: [{
+            lineWidth: 1,
+            gridLineWidth: 1,
+            title: null,
+            tickWidth: 1,
+            tickLength: 5,
+            tickPosition: 'inside',
+            labels: {
+                align: 'left',
+                x: 8
+            }
+        }, {
+            opposite: true,
+            linkedTo: 0,
+            lineWidth: 1,
+            gridLineWidth: 0,
+            title: null,
+            tickWidth: 1,
+            tickLength: 5,
+            tickPosition: 'inside',
+            labels: {
+                align: 'right',
+                x: -8
+            }
+        }],
+        legend: {
+            enabled: false
+        },
+        plotOptions: {
+            area: {
+                fillOpacity: 0.2,
+                lineWidth: 1,
+                step: 'center'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size=10px;">Price: {point.key}</span><br/>',
+            valueDecimals: 2
+        },
+        series: [{
+            name: 'Bids',
+            data: [],
+            color: '#03a7a8'
+        }, {
+            name: 'Asks',
+            data: [],
+            color: '#fc5857'
+        }]
+    });
 }
 
 const Config = {
@@ -131,7 +206,9 @@ const Global = {
     walletResponse: undefined,
     signumJSAPI: undefined,
     extendedInfo: undefined,
-    messageIsError: false
+    messageIsError: false,
+    histChart: undefined,
+    notchChart: undefined
 }
 
 let Stats = {
@@ -915,7 +992,7 @@ async function getBuyOrders() {
 
     let response
     try {
-        response = await fetch(`${Global.server}/burst?requestType=getBidOrders&asset=${Config.assetId}&firstIndex=0&lastIndex=${Config.ordersToShow}`)
+        response = await fetch(`${Global.server}/burst?requestType=getBidOrders&asset=${Config.assetId}&firstIndex=0&lastIndex=30`)
     } catch (error) {
         document.getElementById("buy_orders").innerHTML = "";
         console.log(error.message)
@@ -928,22 +1005,31 @@ async function getBuyOrders() {
         return;
     }
 
+    let buys = [];
+    let lastQty = 0;
     let output = ""
+    let counter = 0;
     for (const Order of OrdersResp.bidOrders) {
-        output += '<tr>'
-        output += `<td>${Order.accountRS}</td>`
-        output += `<td>${Number(Order.quantityQNT)/100}</td>`
-        output += `<td><strong>${Number(Order.priceNQT)/1000000}</strong></td>`
-        output += `<td>${((Number(Order.priceNQT)*Number(Order.quantityQNT))/100000000).toFixed(2)}</td>`
-        output += '</tr>'
+        if (counter <= Config.ordersToShow) {
+            output += '<tr>'
+            output += `<td>${Order.accountRS}</td>`
+            output += `<td>${Number(Order.quantityQNT)/100}</td>`
+            output += `<td><strong>${Number(Order.priceNQT)/1000000}</strong></td>`
+            output += `<td>${((Number(Order.priceNQT)*Number(Order.quantityQNT))/100000000).toFixed(2)}</td>`
+            output += '</tr>'
+        }
+        lastQty += Number(Order.quantityQNT)/100
+        buys.push([Number(Order.priceNQT)/1000000, lastQty ])
+        counter++;
     }
     document.getElementById("buy_orders").innerHTML = output;
+    Global.notchChart.series[0].setData(buys);
 }
 
 async function getSellOrders() {
     let response
     try {
-        response = await fetch(`${Global.server}/burst?requestType=getAskOrders&asset=${Config.assetId}&firstIndex=0&lastIndex=${Config.ordersToShow}`)
+        response = await fetch(`${Global.server}/burst?requestType=getAskOrders&asset=${Config.assetId}&firstIndex=0&lastIndex=30`)
     } catch (error) {
         console.log(error.message)
         return;
@@ -955,16 +1041,25 @@ async function getSellOrders() {
         return;
     }
 
+    let sells = []
+    let lastQty = 0
     let output = ""
+    let counter = 0;
     for (const Order of OrdersResp.askOrders) {
-        output += '<tr>'
-        output += `<td>${Order.accountRS}</td>`
-        output += `<td>${Number(Order.quantityQNT)/100}</td>`
-        output += `<td><strong>${Number(Order.priceNQT)/1000000}</strong></td>`
-        output += `<td>${((Number(Order.priceNQT)*Number(Order.quantityQNT))/100000000).toFixed(2)}</td>`
-        output += '</tr>'
+        if (counter <= Config.ordersToShow) {
+            output += '<tr>'
+            output += `<td>${Order.accountRS}</td>`
+            output += `<td>${Number(Order.quantityQNT)/100}</td>`
+            output += `<td><strong>${Number(Order.priceNQT)/1000000}</strong></td>`
+            output += `<td>${((Number(Order.priceNQT)*Number(Order.quantityQNT))/100000000).toFixed(2)}</td>`
+            output += '</tr>'
+        }
+        counter++;
+        lastQty += Number(Order.quantityQNT)/100
+        sells.push([Number(Order.priceNQT)/1000000, lastQty ])
     }
     document.getElementById("sell_orders").innerHTML = output;
+    Global.notchChart.series[1].setData(sells);
 }
 
 async function updateStatusTable() {
