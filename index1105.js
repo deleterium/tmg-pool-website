@@ -978,13 +978,14 @@ async function update24hrStatus() {
         document.getElementById("contract_variation_24hr").innerHTML = "?";
         document.getElementById("contract_volume_24hr").innerHTML = "?";
         console.log(error.message)
+        return
     }
 
-    if (Stats.aPrice - oneDayAgo.aPrice >= 0) {
-        document.getElementById('contract_variation_24hr').innerHTML = `<strong class='green'>+${(Stats.aPrice - oneDayAgo.aPrice).toFixed(1)}%</strong>`
-    } else {
-        document.getElementById('contract_variation_24hr').innerHTML = `<strong class='red'>${(Stats.aPrice - oneDayAgo.aPrice).toFixed(1)}%</strong>`
+    let classColor = 'green'
+    if (Stats.aPrice < oneDayAgo.aPrice) {
+        classColor = 'red'
     }
+    document.getElementById('contract_variation_24hr').innerHTML = `<strong class='${classColor}'>${(((Stats.aPrice - oneDayAgo.aPrice)*100)/oneDayAgo.aPrice).toFixed(1)}%</strong>`
     document.getElementById('contract_volume_24hr').innerHTML = (Number(Stats.volume - oneDayAgo.volume)/1E8).toFixed(2)
 }
 
