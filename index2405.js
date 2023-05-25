@@ -18,6 +18,9 @@ window.onload = async function () {
     document.getElementById("ipt_remove_lctmg").addEventListener('keyup', evtCalculateRemove)
     document.getElementById("btn_remove").addEventListener('click', evtRemove)
 
+    // Old version data
+    localStorage.removeItem("tmg_pool_chart_data")
+
     await requestContractData()
     if (localStorage.getItem("hasXT") === "true") {
         activateWalletXT(supressError)
@@ -41,27 +44,52 @@ window.onload = async function () {
     updateOBTradesTable()
 
     // create the chart
+    const groupingUnits = [[
+        'week',                         // unit name
+        [1]                             // allowed multiples
+    ], [
+        'month',
+        [1, 2, 3, 4, 6]
+    ]];
     Global.histChart = Highcharts.stockChart('container', {
         title: {
             text: 'TMG price - Liquidity pool'
         },
 
         rangeSelector: {
-            buttons: [{
-                type: 'week',
-                count: 1,
-                text: '1W'
-            },{
-                type: 'month',
-                count: 1,
-                text: '1M'
-            }, {
-                type: 'all',
-                count: 1,
-                text: 'All'
-            }],
-            selected: 1,
-            inputEnabled: false
+            selected: 1
+        },
+
+        yAxis: [{
+            labels: {
+                align: 'right',
+                x: -3
+            },
+            title: {
+                text: 'OHLC'
+            },
+            height: '60%',
+            lineWidth: 2,
+            resize: {
+                enabled: true
+            }
+        }, {
+            labels: {
+                align: 'right',
+                x: -3
+            },
+            title: {
+                text: 'Volume'
+            },
+            top: '65%',
+            height: '35%',
+            offset: 0,
+            lineWidth: 2
+        }],
+
+        tooltip: {
+            split: true,
+            valueDecimals: 2
         },
 
         series: [{
@@ -69,19 +97,27 @@ window.onload = async function () {
             type: 'candlestick',
             color: '#d83c41',
             data: [],
-            tooltip: {
-                valueDecimals: 2
+            dataGrouping: {
+                units: groupingUnits
+            }
+        }, {
+            type: 'column',
+            name: 'Volume',
+            data: [],
+            yAxis: 1,
+            dataGrouping: {
+                units: groupingUnits
             }
         }]
     });
 
     async function updateChart() {
-        const chartData = localStorage.getItem("tmg_pool_chart_data")
+        const chartData = localStorage.getItem("tmg_pool_chart_data2")
         let data
         let jChartData
         if (!chartData) {
             try {
-                const response = await fetch('https://deleterium.info/tmg_api/getDailyOHLC/?start=0')
+                const response = await fetch('https://deleterium.info/tmg_api_2/getDailyOHLC/?start=0')
                 jChartData = await response.json();
             } catch (error) {
                 console.log(error.message)
@@ -92,18 +128,19 @@ window.onload = async function () {
             jChartData.pop()
             const lastPopItem = jChartData.pop()
             try {
-                const response = await fetch(`https://deleterium.info/tmg_api/getDailyOHLC/?start=${lastPopItem[0] / 1000}`)
+                const response = await fetch(`https://deleterium.info/tmg_api_2/getDailyOHLC/?start=${lastPopItem[0] / 1000}`)
                 data = await response.json();
             } catch (error) {
                 console.log(error.message)
                 return;
             }
-            // BUG (API does not aswer correct 'open' field)
-            data[0][1] = jChartData[jChartData.length - 1][4]
             jChartData = jChartData.concat(data)
         }
-        Global.histChart.series[0].setData( jChartData );
-        localStorage.setItem('tmg_pool_chart_data', JSON.stringify(jChartData))
+        let ohlc = jChartData.map(item => [item[0], item[1], item[2], item[3], item[4]])
+        let volume = jChartData.map(item => [item[0], item[5]])
+        Global.histChart.series[0].setData( ohlc );
+        Global.histChart.series[1].setData( volume );
+        localStorage.setItem('tmg_pool_chart_data2', JSON.stringify(jChartData))
     }
 
     setInterval(function () {
@@ -834,7 +871,7 @@ function formatAmount(num, decimals) {
 }
 
 async function getExtendedAccountInfo() {
-    const Response = await Global.signumJSAPI.service.send('getAccount', { account: Global.walletResponse.accountId })
+    const Response = await Global.signumJSAPI.service.query('getAccount', { account: Global.walletResponse.accountId })
     Global.extendedInfo = {}
     if (Response.name === undefined) {
         Global.extendedInfo.name = ''
