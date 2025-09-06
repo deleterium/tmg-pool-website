@@ -1085,6 +1085,7 @@ async function getBuyOrders() {
         return;
     }
 
+    OrdersResp.bidOrders = OrdersResp.bidOrders.filter(val => Number(val.price)/1e8 >= Stats.aPrice/10);
     let buys = [];
     let lastQty = 0;
     let output = ""
