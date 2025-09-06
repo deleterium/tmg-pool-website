@@ -941,6 +941,30 @@ function updateContractDetails() {
     document.getElementById("contract_liquidity").innerText = Number(Stats.currentLiquidity)
 }
 
+async function checkServerUpdated() {
+    let response
+    try {
+        response = await fetch(`${Global.server}/burst?requestType=getBlock`)
+    } catch (error) {
+        console.log(error.message)
+        return;
+    }
+
+    const lastBlockInfo = await response.json();
+    if (lastBlockInfo.timestamp === undefined) {
+        console.log("Error checking node")
+        return
+    }
+
+    const dateOfLastBlock = new Date(Date.UTC(2014, 7, 11, 2, 0, 0, 0) + lastBlockInfo.timestamp * 1000)
+    const lastBlockTime = dateOfLastBlock.getTime()
+    const now = Date.now();
+    const timeDiff = now - lastBlockTime 
+    if (timeDiff > 900000) { // More than 15 minutes behind user clock
+        showError(`Node ${Global.server} seems to be out of sync. Last block timestamp is ${formatTimestamp(lastBlockInfo.timestamp, false)}`)
+    }
+}
+
 async function getPoolStatsAtHeight(height) {
     function decodeMemory(hexstring){
         const retObj = {
@@ -1002,13 +1026,12 @@ async function getPoolStatsAtHeight(height) {
 }
 
 async function requestContractData() {
-
     Stats = await getPoolStatsAtHeight()
+    if (Stats) {
+        await checkServerUpdated()
+    }
     updateContractDetails()
-
     update24hrStatus()
-
-
     getBuyOrders()
     getSellOrders()
 }
