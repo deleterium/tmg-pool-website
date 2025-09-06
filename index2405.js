@@ -21,11 +21,6 @@ window.onload = async function () {
     // Old version data
     localStorage.removeItem("tmg_pool_chart_data")
 
-    await requestContractData()
-    if (localStorage.getItem("hasXT") === "true") {
-        activateWalletXT(supressError)
-    }
-
     const exits = document.querySelectorAll('.modal-exit');
     exits.forEach(function (exit) {
         exit.addEventListener('click', function (event) {
@@ -33,15 +28,6 @@ window.onload = async function () {
             document.getElementById("modal_window").classList.remove('open');
         });
     });
-
-    setInterval(function () {
-        requestContractData()
-        updateLinkedAccount()
-        updateStatusTable()
-        updateOBTradesTable()
-    }, 30000)
-    updateStatusTable()
-    updateOBTradesTable()
 
     // create the chart
     const groupingUnits = [[
@@ -117,7 +103,7 @@ window.onload = async function () {
         let jChartData
         if (!chartData) {
             try {
-                const response = await fetch('https://deleterium.info/tmg_api_2/getDailyOHLC/?start=0')
+                const response = await fetch(`${Config.tmgApiAddress}/getDailyOHLC/?start=0`)
                 jChartData = await response.json();
             } catch (error) {
                 console.log(error.message)
@@ -128,7 +114,7 @@ window.onload = async function () {
             jChartData.pop()
             const lastPopItem = jChartData.pop()
             try {
-                const response = await fetch(`https://deleterium.info/tmg_api_2/getDailyOHLC/?start=${lastPopItem[0] / 1000}`)
+                const response = await fetch(`${Config.tmgApiAddress}/getDailyOHLC/?start=${lastPopItem[0] / 1000}`)
                 data = await response.json();
             } catch (error) {
                 console.log(error.message)
@@ -223,6 +209,21 @@ window.onload = async function () {
             color: '#fc5857'
         }]
     });
+
+    setInterval(function () {
+        requestContractData()
+        updateLinkedAccount()
+        updateStatusTable()
+        updateOBTradesTable()
+    }, 30000)
+
+    if (localStorage.getItem("hasXT") === "true") {
+        activateWalletXT(supressError)
+    } else {
+        await requestContractData()
+        updateStatusTable()
+        updateOBTradesTable()
+    }
 }
 
 const Config = {
@@ -234,11 +235,12 @@ const Config = {
     appName: "TMG Signa Pool",
     networkName: "Signum",
     slippageMessage: "ATTENTION: Shown only once\n\nCalculations are only valid if your transaction is the only one between the the time the page loads and the transaction be processed by the smart contract. Actual received values may differ.",
-    ordersToShow: "4"
+    ordersToShow: "4",
+    tmgApiAddress: "https://deleterium.info/tmg_api_2"
 }
 
 const Global = {
-    server: 'https://europe.signum.network',
+    server: 'https://europe3.signum.network',
     wallet: undefined,
     walletResponse: undefined,
     signumJSAPI: undefined,
@@ -772,13 +774,15 @@ async function activateWalletXT(errorCallback) {
                 onPermissionRemoved: unlinkAccount,
                 onAccountRemoved: unlinkAccount
             })
-            localStorage.setItem("hasXT", "true");
-            updateLinkedAccount();
+            localStorage.setItem("hasXT", "true");    
         } catch (err) {
             unlinkAccount()
             errorCallback("Signum XT Wallet link error:\n\n" + err.message)
-            return
         }
+        requestContractData()
+        updateLinkedAccount()
+        updateStatusTable()
+        updateOBTradesTable()
     }
 }
 
@@ -809,6 +813,20 @@ function updateDefaultNode(selectedNode) {
     Global.signumJSAPI = sig$.composeApi({
         nodeHost: Global.server
     });
+    if (Stats === undefined) {
+        setTimeout(async () => {
+            Stats = await getPoolStatsAtHeight()
+            updateContractDetails()
+        }, 100)
+    }
+    
+}
+
+function assertStats() {
+    if (Stats === undefined) {
+        showError(`Pool data not loaded, ${Global.server} may be not responding or out of sync. Try to refresh the page or link you wallet to other node.`)
+        throw new Error("UNDEFINED_STATS")
+    }
 }
 
 function unlinkAccount() {
@@ -914,6 +932,7 @@ async function getExtendedAccountInfo() {
 }
 
 function updateContractDetails() {
+    assertStats()
     document.getElementById("contract_rs").innerHTML = `<a href="https://explorer.notallmine.net/address/${Config.smartContractId}" target="_blank">${idTOaccount(Config.smartContractId)}</a>`
     document.getElementById("contract_owner").innerText = Stats.owner
     document.getElementById("contract_price").innerText = Stats.aPrice.toFixed(2)
@@ -960,12 +979,12 @@ async function getPoolStatsAtHeight(height) {
         response = await fetch(`${Global.server}/burst?requestType=getATDetails&at=${Config.smartContractId}&height=${height}`)
     } catch (error) {
         console.log(error.message)
-        return {};
+        return;
     }
 
     const contractInfo = await response.json();
     if (contractInfo.machineData === undefined) {
-        return {};
+        return;
     }
 
     const Variables = decodeMemory(contractInfo.machineData)
